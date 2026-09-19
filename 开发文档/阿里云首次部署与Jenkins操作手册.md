@@ -19,7 +19,7 @@
 - Spring Boot 通过 RDS 内网地址连接 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.<域名>/api/v1`。
 
-项目已配置格式有效的正式 AppID。还不能由开发人员代填的内容：正式域名、证书、RDS 地址和密码、对应 AppSecret、运营主体资料、GitHub 组织私有仓库地址。
+项目已配置格式有效的正式 AppID，GitHub 私有仓库和首次推送已经完成。还不能由开发人员代填的内容：正式域名、证书、RDS 地址和密码、对应 AppSecret及运营主体资料。
 
 2026-09-19 用户已确认正式采用以下发布链路：先上传 GitHub 私有仓库，再由阿里云 ECS 上的 Jenkins 拉取、测试和发布后端及管理系统。当前只是代码侧部署配置完成，服务器从未完成第一次生产发布。
 
@@ -200,14 +200,17 @@ http://127.0.0.1:18080
 
 ## 7. 第四步：GitHub 仓库
 
-当前本地目录不是 Git 仓库，也没有 Remote；电脑虽然登录了 GitHub CLI，但没有证据表明本机个人账号是本项目正式所有者，因此尚未执行首次推送。用户已于 2026-09-19 明确要求把代码上传 GitHub 后再由 Jenkins 部署，这一要求已记录，但不会替代仓库归属确认。
+2026-09-19 已完成：
 
-项目负责人回来后只需二选一：
+- GitHub 当前账号：`zhouya166913-cell`；
+- 私有仓库：`https://github.com/zhouya166913-cell/soft-energy-leaderboard`；
+- 本地分支：`main`；
+- 本地 Remote：`origin`；
+- 首次推送根提交：`7069997`。
 
-1. 提供 GitHub 组织私有仓库 URL，例如 `https://github.com/<组织>/soft-energy-leaderboard.git`；
-2. 明确授权在指定 GitHub 账号下创建名为 `soft-energy-leaderboard` 的私有仓库。
+Jenkins 尚未接入仓库。仓库当前位于个人账号下，后续如需要多人交接，应迁移到 GitHub Organization 并使用团队权限，不能共享个人账号密码。
 
-确认后由开发助手执行密钥扫描、Git 初始化、提交、推送和 Draft PR，不需要在服务器手工复制代码。
+下一步是在 Jenkins 中配置只读取该私有仓库所需的最小权限凭据，并创建 Multibranch Pipeline；不需要在服务器手工复制业务代码。
 
 ## 8. 第五步：准备服务器目录与生产配置
 
