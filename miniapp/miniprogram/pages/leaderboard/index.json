@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "荣誉榜单",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-loading": "tdesign-miniprogram/loading/loading"
+  }
+}

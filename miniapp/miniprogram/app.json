@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/welcome/index",
+    "pages/home/index",
+    "pages/activity/index",
+    "pages/result/index",
+    "pages/leaderboard/index",
+    "pages/profile/index",
+    "pages/test-center/index",
+    "pages/profile-edit/index",
+    "pages/privacy/index",
+    "pages/report/index",
+    "pages/legal/index",
+    "pages/account/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#f5f2eb",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#7a827c",
+    "selectedColor": "#893b31",
+    "backgroundColor": "#fbfaf6",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "修习" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
+  },
+  "__usePrivacyCheck__": true,
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

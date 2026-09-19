@@ -1,0 +1,21 @@
+{
+  "name": "soft-energy-miniapp",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "build:npm": "node scripts/build-npm.mjs",
+    "check:release": "node scripts/check-release.mjs",
+    "verify:release": "pnpm type-check && pnpm test && pnpm build:npm && pnpm check:release"
+  },
+  "dependencies": {
+    "tdesign-miniprogram": "^1.12.1"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^5.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.13"
+  },
+  "packageManager": "pnpm@11.9.0"
+}

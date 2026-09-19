@@ -1,0 +1,16 @@
+<view class="account-page safe-top">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">账号与数据</text><view class="nav__placeholder"/></view>
+  <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" text="正在读取账号信息"/></view>
+  <view wx:else class="account-body">
+    <view class="account-summary surface"><view class="account-avatar">{{initial}}</view><view><text>{{profile ? profile.nickname : '当前账号'}}</text><text class="semantic-small">微信身份已与答题记录独立绑定</text></view></view>
+    <view class="data-card"><text class="eyebrow">ACCOUNT DATA</text><text class="data-title">当前保存的数据</text><view><text class="semantic-span">修习身份</text><text class="semantic-strong">{{profile ? profile.nickname : '—'}}</text></view><view><text class="semantic-span">参与题目</text><text class="semantic-strong">{{profile ? profile.participationCount : 0}} 场</text></view><view><text class="semantic-span">荣誉记录</text><text class="semantic-strong">{{honorCount}} 条</text></view></view>
+    <view class="cancel-card">
+      <view class="cancel-head"><view class="semantic-icon">慎</view><view><text>注销账号</text><text class="semantic-small">这是不可恢复的操作</text></view></view>
+      <view class="semantic-paragraph">注销后会立即清除 OpenID、修习名、原始答案、申诉内容及其他可关联资料，并停止原账号登录。已经公布的榜单仅保留无法关联到个人的“已注销用户”、荣誉等级和排序时间。</view>
+      <input class="confirm-input" value="{{confirmText}}" placeholder="请输入：确认注销" placeholder-class="confirm-placeholder" bindinput="onInput"/>
+      <view wx:if="{{error}}" class="form-error">{{error}}</view>
+      <button class="cancel-button" loading="{{cancelling}}" disabled="{{cancelling}}" bindtap="cancelAccount">申请注销账号</button>
+    </view>
+    <button class="contact-button" open-type="contact">注销前联系微信客服</button>
+  </view>
+</view>

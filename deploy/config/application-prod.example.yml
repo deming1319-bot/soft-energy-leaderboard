@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:8}
+      minimum-idle: ${DB_POOL_MIN:2}
+      connection-timeout: 10000
+      validation-timeout: 5000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    clean-disabled: true
+
+server:
+  address: 127.0.0.1
+  port: ${SERVER_PORT:8081}
+  forward-headers-strategy: framework
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+soft-energy:
+  security:
+    jwt-secret-base64: ${JWT_SECRET_BASE64}
+    phone-key-base64: ${PHONE_KEY_BASE64}
+    phone-hmac-base64: ${PHONE_HMAC_BASE64}
+  wechat:
+    mock-enabled: false
+    content-security-enabled: true
+    app-id: ${WECHAT_APP_ID}
+    app-secret: ${WECHAT_APP_SECRET}
+  cors:
+    allowed-origins:
+      - ${ADMIN_ORIGIN}
+  bootstrap:
+    demo-data-enabled: false
+    admin-username: ${ADMIN_USERNAME}
+    admin-password: ${ADMIN_PASSWORD}
+    admin-display-name: ${ADMIN_DISPLAY_NAME:内容管理员}

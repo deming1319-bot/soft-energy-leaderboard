@@ -1,0 +1,26 @@
+[Unit]
+Description=Soft Energy Leaderboard API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=softenergy
+Group=softenergy
+WorkingDirectory=/opt/soft-energy/current
+Environment=TZ=Asia/Shanghai
+Environment=SPRING_PROFILES_ACTIVE=prod
+Environment=JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -XX:+UseG1GC -Djava.awt.headless=true
+EnvironmentFile=/opt/soft-energy/shared/soft-energy.env
+ExecStart=/usr/bin/java -jar /opt/soft-energy/current/app/soft-energy-api.jar --spring.config.additional-location=file:/opt/soft-energy/shared/application-prod.yml
+Restart=on-failure
+RestartSec=5
+SuccessExitStatus=143
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

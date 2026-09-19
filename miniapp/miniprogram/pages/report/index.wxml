@@ -1,0 +1,39 @@
+<view class="report-page safe-top">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">反馈与举报</text><view class="nav__placeholder"/></view>
+  <view class="report-body">
+    <view class="report-hero">
+      <view class="hero-mark">正</view>
+      <view><text>每一条反馈都有处理记录</text><text class="hero-copy">用于违法信息举报、侵权投诉、评分申诉与隐私请求。普通反馈将在 7 个工作日内给出处理结果。</text></view>
+    </view>
+
+    <view class="target-card surface"><text class="section-kicker">本次反馈对象</text><view><text>{{targetLabel}}</text><text>{{fixedType ? '类型已根据当前页面自动选择' : '你可以在下方选择反馈类型'}}</text></view></view>
+
+    <view class="section-head"><text class="section-kicker">反馈类型</text><text>选择最符合的一项</text></view>
+    <view class="type-grid">
+      <view wx:for="{{types}}" wx:key="value" class="type-card {{selectedType === item.value ? 'selected' : ''}} {{fixedType && selectedType !== item.value ? 'disabled' : ''}}" data-value="{{item.value}}" bindtap="selectType">
+        <view class="type-check">{{selectedType === item.value ? '✓' : ''}}</view><text>{{item.label}}</text><text>{{item.tip}}</text>
+      </view>
+    </view>
+
+    <view class="description-card surface">
+      <view><text>具体情况</text><text>{{count}} / 1000</text></view>
+      <textarea value="{{description}}" maxlength="1000" auto-height placeholder="请说明发生了什么、所在页面以及希望如何处理……" placeholder-class="report-placeholder" bindinput="onInput"/>
+      <text class="privacy-tip">请勿填写身份证号、银行卡号等与处理无关的敏感信息。</text>
+    </view>
+    <view wx:if="{{error}}" class="report-error">{{error}}</view>
+    <t-button block size="large" theme="primary" class="primary-button" loading="{{submitting}}" bind:tap="submit">提交反馈</t-button>
+    <button class="contact-button" open-type="contact">紧急问题联系微信客服</button>
+
+    <view class="history-head"><text class="section-kicker">我的反馈记录</text><text>最近 {{reports.length}} 条</text></view>
+    <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" text="正在读取处理记录"/></view>
+    <view wx:elif="{{reports.length}}" class="report-list">
+      <view wx:for="{{reports}}" wx:key="id" class="report-item surface">
+        <view class="report-item__top"><text>{{item.typeLabel}}</text><text class="status status-{{item.status}}">{{item.statusLabel}}</text></view>
+        <text class="report-target">{{item.targetLabel}} · {{item.timeText}}</text>
+        <text class="report-description">{{item.description}}</text>
+        <view wx:if="{{item.handlingNote}}" class="handling-note"><text>处理回复</text><text>{{item.handlingNote}}</text></view>
+      </view>
+    </view>
+    <view wx:else class="empty-history"><text>暂无反馈记录</text><text>提交后可在这里查看处理进度与回复。</text></view>
+  </view>
+</view>

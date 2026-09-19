@@ -1,0 +1,15 @@
+<view class="identity-page safe-top">
+  <view class="nav"><view wx:if="{{!first}}" class="nav__back" bindtap="goBack">‹</view><view wx:else class="nav__placeholder"/><text class="nav__title">修习身份</text><view class="nav__placeholder"/></view>
+  <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" text="正在准备身份"/></view>
+  <view wx:else class="identity-body">
+    <view class="identity-hero"><view class="identity-ring"/><text class="overline">YOUR PRACTICE NAME</text><text class="identity-title">留一个清楚、温和的名字。</text><text class="identity-copy">修习名会出现在你的个人档案，并在题目截止后的冠军榜或亚军榜中向参与者展示。</text></view>
+    <view class="name-card surface">
+      <view class="name-card__head"><text>设置修习名</text><text class="semantic-small">{{count}} / 16</text></view>
+      <input class="name-input" value="{{nickname}}" maxlength="16" placeholder="例如：明心、知行先生" placeholder-class="name-placeholder" bindinput="onInput"/>
+      <view class="name-rule"><view class="semantic-icon">安</view><text>请使用便于老师和同学辨认的名称，不要填写手机号、身份证号、广告或冒用他人身份。</text></view>
+      <view wx:if="{{error}}" class="form-error">{{error}}</view>
+      <t-button block size="large" theme="primary" class="primary-button" loading="{{saving}}" bind:tap="save">保存并继续</t-button>
+    </view>
+    <text class="identity-footnote">以后可以在“我的修习”中更改</text>
+  </view>
+</view>

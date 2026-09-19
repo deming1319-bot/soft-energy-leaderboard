@@ -1,0 +1,27 @@
+<view class="page-body home safe-top {{largeReading ? 'reading-large' : ''}}">
+  <view class="nav home-nav"><view class="brand"><view class="brand__seal">和</view><view><text>问道</text><text class="semantic-small">修习答题</text></view></view><view class="nav__motto">每日一问 · 日日自省</view></view>
+
+  <view class="hero">
+    <view class="hero__grain" />
+    <view class="hero__moon" />
+    <view class="hero__mountain mountain-a"/><view class="hero__mountain mountain-b"/>
+    <view class="hero__content"><text class="hero__overline">今日功课</text><text class="hero__title">{{greeting}}</text><text class="hero__quote">知者行之始，行者知之成。</text></view>
+    <view class="hero__status"><text>{{activeCount}}</text><text class="semantic-small">题进行中</text></view>
+  </view>
+
+  <view class="section-head"><view><text class="eyebrow">TODAY'S PRACTICE</text><text class="section-head__title">修习题目</text></view><text class="section-head__note">下拉可刷新</text></view>
+
+  <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" size="48rpx" text="正在整理今日功课" /></view>
+  <view wx:elif="{{error}}" class="load-error surface"><view>候</view><text>暂时没有加载成功</text><text class="semantic-small">{{error}}</text><button bindtap="retry">重新加载</button></view>
+  <view wx:else class="activity-list">
+    <view wx:for="{{activities}}" wx:key="id" class="activity-card surface" data-id="{{item.id}}" bindtap="openActivity">
+      <view class="activity-card__top"><view class="category-seal">{{item.categoryLabel}}</view><view class="activity-state state-{{item.timeState}}"><view class="semantic-icon"/><text>{{item.stateLabel}}</text></view></view>
+      <text class="activity-card__title">{{item.title}}</text><text class="activity-card__subtitle">{{item.subtitle || '于一问之间，照见所学与所行。'}}</text>
+      <view class="activity-card__divider" />
+      <view class="activity-card__foot"><view><text>{{item.timeText}}</text><text class="semantic-small" wx:if="{{item.remaining}}">{{item.remaining}}</text></view><view class="participation"><text>{{item.participantCount}}</text><text class="semantic-small">人已作答</text></view></view>
+      <view class="activity-card__action"><text wx:if="{{item.submitted}}">已完成 · 查看结果</text><text wx:elif="{{item.timeState === 'ACTIVE'}}">进入作答</text><text wx:elif="{{item.timeState === 'ENDED'}}" data-id="{{item.id}}" catchtap="openLeaderboard">查看榜单</text><text wx:else>查看详情</text><text class="semantic-span">›</text></view>
+    </view>
+    <view wx:if="{{!activities.length}}" class="empty-state"><view class="empty-seal">静</view><text>今日暂无修习题目</text><text class="semantic-small">稍作歇息，静候下一问</text></view>
+  </view>
+  <view class="home-filing" bindtap="copyFilingInfo"><text>{{operatorName}}</text><text>APP 备案号：{{filingNumber}}</text><text class="home-filing__tip">点击复制工信部备案查询地址</text></view>
+</view>

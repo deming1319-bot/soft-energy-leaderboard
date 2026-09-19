@@ -1,0 +1,27 @@
+<view class="privacy-page safe-top">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">隐私与数据</text><view class="nav__placeholder"/></view>
+  <view class="privacy-body">
+    <view class="privacy-hero"><view class="privacy-orbit"/><view class="shield">安</view><text>只处理完成修习答题所需的信息</text><text class="semantic-small">首版不获取手机号、微信头像、位置、通讯录、相册或麦克风。</text></view>
+
+    <view class="data-title"><text class="eyebrow">DATA WE USE</text><text>个人信息清单</text></view>
+    <view class="data-grid">
+      <view><view class="semantic-icon">身</view><view class="semantic-copy"><text class="semantic-strong">微信 OpenID</text><text class="semantic-small">建立唯一身份，不公开展示</text></view></view>
+      <view><view class="semantic-icon">名</view><view class="semantic-copy"><text class="semantic-strong">修习名</text><text class="semantic-small">个人档案与截止后榜单</text></view></view>
+      <view><view class="semantic-icon">答</view><view class="semantic-copy"><text class="semantic-strong">答案与成绩</text><text class="semantic-small">判题、复核和个人记录</text></view></view>
+      <view><view class="semantic-icon">时</view><view class="semantic-copy"><text class="semantic-strong">提交时间</text><text class="semantic-small">截止判断与同级排序</text></view></view>
+      <view><view class="semantic-icon">诉</view><view class="semantic-copy"><text class="semantic-strong">反馈与处理</text><text class="semantic-small">投诉受理、申诉和处理回复</text></view></view>
+    </view>
+
+    <view class="privacy-actions surface">
+      <view bindtap="openPlatformPrivacy"><view><text>微信隐私保护指引</text><text class="semantic-small">查看运营主体与完整法定说明</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openPrivacySummary"><view><text>隐私处理摘要</text><text class="semantic-small">版本 {{privacyVersion}}</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openTerms"><view><text>用户协议</text><text class="semantic-small">版本 {{termsVersion}}</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="editProfile"><view><text>更正修习名</text><text class="semantic-small">修改个人公开展示名称</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openAccount"><view><text>账号与数据</text><text class="semantic-small">了解注销影响并管理账号</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openReport"><view><text>反馈与举报</text><text class="semantic-small">提交投诉并查看处理进度</text></view><text class="semantic-span">›</text></view>
+    </view>
+    <view class="filing-card surface" bindtap="copyFilingInfo"><view><text>运营主体</text><text class="semantic-small">{{operatorName}}</text></view><view><text>APP 备案号</text><text class="semantic-small">{{filingNumber}}</text></view><text class="filing-tip">点击复制工信部备案查询地址</text></view>
+    <button class="contact-button" open-type="contact">联系微信客服</button>
+    <text class="privacy-footnote">平台隐私指引与代码实际处理的信息必须保持一致</text>
+  </view>
+</view>

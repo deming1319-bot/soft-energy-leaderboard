@@ -1,0 +1,36 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+runtime/
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Java
+backend/target/
+*.log
+
+# Node
+node_modules/
+admin-web/dist/
+admin-web/coverage/
+miniapp/miniprogram/miniprogram_npm/
+miniapp/coverage/
+
+# Test artifacts
+.playwright-cli/
+output/
+playwright-report/
+test-results/
+
+# WeChat local settings
+miniapp/project.private.config.json

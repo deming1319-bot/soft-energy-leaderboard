@@ -1,0 +1,47 @@
+:root {
+  --ink-950: #1d211e;
+  --ink-800: #343a35;
+  --ink-650: #59615b;
+  --ink-500: #7a827c;
+  --paper-50: #fbfaf6;
+  --paper-100: #f5f2eb;
+  --paper-200: #ebe6dc;
+  --paper-300: #ddd5c7;
+  --cinnabar-700: #893b31;
+  --cinnabar-600: #a3483b;
+  --cinnabar-500: #b65a4d;
+  --pine-700: #3f5549;
+  --pine-600: #526b5c;
+  --pine-100: #e4ebe5;
+  --gold-600: #9b7a43;
+  --gold-100: #f2e9d8;
+  --warning-600: #9a682f;
+  --danger-600: #a43f39;
+  --white: #ffffff;
+
+  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-serif: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --shadow-soft: 0 18px 50px rgba(47, 42, 34, 0.08);
+  --shadow-float: 0 24px 70px rgba(35, 31, 25, 0.14);
+  --border-subtle: 1px solid rgba(84, 76, 64, 0.13);
+
+  --el-color-primary: var(--cinnabar-600);
+  --el-color-primary-light-3: #bd7469;
+  --el-color-primary-light-5: #d09b93;
+  --el-color-primary-light-7: #e4c4bf;
+  --el-color-primary-light-9: #f7ecea;
+  --el-color-primary-dark-2: #81382e;
+  --el-border-radius-base: var(--radius-sm);
+  --el-border-color: #ded8ce;
+  --el-fill-color-light: #f6f3ed;
+  --el-bg-color-page: var(--paper-100);
+  --el-text-color-primary: var(--ink-950);
+  --el-text-color-regular: var(--ink-650);
+  --el-font-family: var(--font-sans);
+}
+

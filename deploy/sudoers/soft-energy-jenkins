@@ -1,0 +1,1 @@
+jenkins ALL=(root) NOPASSWD: /usr/bin/systemctl restart soft-energy-api, /usr/bin/systemctl status soft-energy-api, /usr/bin/journalctl -u soft-energy-api *, /usr/sbin/nginx -t, /usr/sbin/nginx -s reload, /www/server/nginx/sbin/nginx -t, /www/server/nginx/sbin/nginx -s reload
