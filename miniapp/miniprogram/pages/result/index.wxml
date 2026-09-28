@@ -1,0 +1,13 @@
+<view class="result-page safe-top {{largeReading ? 'reading-large' : ''}}">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">答题结果</text><view class="nav__placeholder"/></view>
+  <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" text="正在评阅" /></view>
+  <view wx:elif="{{error}}" class="page-error"><view class="page-error__mark">!</view><text>暂时没有读到结果</text><text class="semantic-small">{{error}}</text><button bindtap="retry">重新加载</button><button class="page-error__secondary" bindtap="backHome">返回首页</button></view>
+  <view wx:elif="{{result}}" class="result-body">
+    <view class="result-hero grade-{{result.grade}}"><view class="rings"/><text class="result-hero__eyebrow">本次修习结果</text><view class="honor-seal">{{result.grade === 'CHAMPION' ? '冠' : result.grade === 'RUNNER_UP' ? '亚' : result.grade === 'REVIEW_REQUIRED' ? '审' : '习'}}</view><text class="result-hero__title">{{result.gradeLabel}}</text><text class="result-hero__feedback">{{result.feedback}}</text><view class="score"><text>{{result.scorePercent}}%</text><text class="semantic-small">答案匹配度</text></view></view>
+    <view class="result-meta surface"><view><text class="semantic-span">题目</text><text>{{result.activityTitle}}</text></view><view class="semantic-icon"/><view><text class="semantic-span">提交时间</text><text>{{result.timeText}}</text></view></view>
+    <view class="feedback-card surface"><text class="eyebrow">SYSTEM FEEDBACK</text><text class="feedback-card__title">判题说明</text><text class="feedback-text">{{result.feedback}}</text><view wx:if="{{result.matchedPoints.length}}" class="matched"><text>已匹配要点</text><view wx:for="{{result.matchedPoints}}" wx:key="*this"><view class="semantic-icon">✓</view><text class="semantic-span">{{item}}</text></view></view></view>
+    <view wx:if="{{result.answerRevealed && result.standardAnswer}}" class="answer-reveal surface"><view><text>标准答案</text><text class="semantic-span">已揭晓</text></view><text>{{result.standardAnswer}}</text></view>
+    <view wx:else class="answer-locked"><view>锁</view><text>标准答案将在截止后揭晓</text><text class="semantic-small">先保留自己的思考，榜单开启后再来对照。</text></view>
+    <view class="result-actions"><t-button block size="large" theme="primary" class="primary-button" bind:tap="viewLeaderboard">查看荣誉榜单</t-button><t-button block size="large" theme="light" bind:tap="appealScore">申请评分复核</t-button><t-button block size="large" theme="light" bind:tap="backHome">返回修习首页</t-button></view>
+  </view>
+</view>

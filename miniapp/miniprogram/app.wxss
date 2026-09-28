@@ -1,0 +1,36 @@
+page {
+  --ink: #20251f;
+  --ink-soft: #59615b;
+  --paper: #f5f2eb;
+  --paper-deep: #e9e3d8;
+  --white: #fffefb;
+  --cinnabar: #9d493d;
+  --cinnabar-dark: #7e382f;
+  --pine: #465e50;
+  --gold: #9b7a43;
+  --serif: "Songti SC", "STSong", serif;
+  min-height: 100%;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+}
+view, text, textarea, button { box-sizing: border-box; }
+.safe-top { padding-top: 64rpx; padding-top: max(64rpx, env(safe-area-inset-top)); }
+.page-body { min-height: 100vh; padding-bottom: calc(150rpx + env(safe-area-inset-bottom)); }
+.nav { height: 108rpx; padding: 0 34rpx; display: flex; align-items: center; justify-content: space-between; }
+.nav__title { font-family: var(--serif); font-size: 36rpx; font-weight: 700; letter-spacing: 8rpx; }
+.nav__back { width: 68rpx; height: 68rpx; display: grid; place-items: center; border-radius: 22rpx; background: rgba(255,255,255,.65); font-size: 38rpx; }
+.eyebrow { color: var(--cinnabar); font-size: 20rpx; font-weight: 700; letter-spacing: 6rpx; }
+.surface { background: rgba(255,254,251,.94); border: 1rpx solid rgba(87,76,62,.11); border-radius: 30rpx; box-shadow: 0 16rpx 50rpx rgba(55,47,38,.055); }
+.primary-button { --td-button-primary-bg-color: var(--cinnabar); --td-button-primary-border-color: var(--cinnabar); --td-button-border-radius: 22rpx; --td-button-font-weight: 650; }
+.empty-state { padding: 100rpx 40rpx; color: var(--ink-soft); text-align: center; }
+.filing-card { margin-top: 24rpx; padding: 25rpx; display: grid; gap: 17rpx; }
+.filing-card > view { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; }
+.filing-card > view > text { font-size: 24rpx; font-weight: 650; }
+.filing-card small { color: var(--ink-soft); font-size: 21rpx; text-align: right; }
+.filing-tip { padding-top: 16rpx; color: var(--cinnabar); border-top: 1rpx solid var(--paper-deep); font-size: 20rpx; text-align: center; }
+.report-entry { width: auto; height: auto; margin: 0 0 0 auto; padding: 8rpx 14rpx; color: var(--ink-soft); border: 0; background: transparent; font-size: 20rpx; font-weight: 500; line-height: 1.2; }
+.report-entry::after { border: 0; }
+.rank-report { width: auto; min-width: 62rpx; height: auto; margin: 0; padding: 8rpx 10rpx; color: var(--ink-soft); border: 0; background: transparent; font-size: 19rpx; line-height: 1.2; }
+.rank-report::after { border: 0; }

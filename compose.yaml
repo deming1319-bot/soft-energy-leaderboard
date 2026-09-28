@@ -1,0 +1,31 @@
+name: soft-energy-leaderboard
+
+services:
+  mysql:
+    image: mysql:8.4.7
+    container_name: soft-energy-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_only}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-soft_energy_dev}
+      MYSQL_USER: ${MYSQL_USER:-softenergy}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-softenergy_dev_only}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+08:00
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    volumes:
+      - soft-energy-mysql-data:/var/lib/mysql
+
+volumes:
+  soft-energy-mysql-data:
+

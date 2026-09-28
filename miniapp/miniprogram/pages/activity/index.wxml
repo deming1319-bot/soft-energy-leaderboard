@@ -1,0 +1,18 @@
+<view class="page-body detail-page safe-top {{largeReading ? 'reading-large' : ''}}">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">修习答题</text><view class="nav__placeholder" /></view>
+  <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" size="48rpx" text="正在展开题卷" /></view>
+  <view wx:elif="{{error}}" class="load-error"><view>候</view><text>题目暂时没有打开</text><text class="semantic-small">{{error}}</text><button bindtap="retry">重新加载</button></view>
+  <block wx:elif="{{detail}}">
+    <view class="question-head">
+      <view class="question-head__meta"><view class="category-seal">{{detail.categoryLabel}}</view><view class="state"><view class="semantic-icon"/><text>{{detail.stateLabel}}</text></view></view>
+      <text class="question-head__title">{{detail.title}}</text><text class="question-head__subtitle">{{detail.subtitle || '静心读题，再落笔作答。'}}</text>
+      <view class="timebar"><view><text>{{detail.timeText}}</text><text class="semantic-small">{{detail.remaining}}</text></view><view class="people"><text>{{detail.participantCount}}</text><text class="semantic-small">人参与</text></view></view>
+    </view>
+    <view class="content-wrap">
+      <view class="question-card surface"><view class="card-label"><view class="semantic-icon">问</view><text>题目正文</text><button class="report-entry" bindtap="reportQuestion">举报内容</button></view><text class="question-text">{{detail.questionText}}</text><view wx:if="{{detail.sourceTitle}}" class="source"><text>{{detail.sourceTitle}}</text><text class="semantic-small">{{detail.sourceDetail}}</text></view></view>
+      <view wx:if="{{detail.canSubmit}}" class="answer-card surface"><view class="answer-card__head"><view class="card-label"><view class="semantic-icon">答</view><text>写下你的答案</text></view><text>{{count}} / 5000</text></view><textarea class="answer-input" value="{{answer}}" maxlength="5000" auto-height placeholder="第一行填写上联或第一句，第二行填写下联或第二句……" placeholder-class="answer-placeholder" bindinput="onInput"/><view class="answer-tip"><view class="semantic-icon">!</view><text>表情符号不参与判定；其余文字、字数、标点和顺序须完全一致。上下联整体颠倒判为亚军，其他错误不入榜。</text></view><view wx:if="{{submitError}}" class="submit-error"><text>{{submitError}}</text><text class="semantic-small">当前答案和请求状态已经保留，可以直接再次提交。</text></view><t-button block theme="primary" size="large" class="primary-button submit-btn" loading="{{submitting}}" bind:tap="submit">完成并提交</t-button><text class="attempts">还可提交 {{detail.maxAttempts - detail.attemptsUsed}} 次 · 提交时刻由服务器记录</text></view>
+      <view wx:elif="{{detail.submitted}}" class="completed-card surface"><view class="completed-seal">成</view><text>你已完成本题</text><text class="semantic-small">系统已保存此次作答，可查看结果与榜单状态。</text><t-button block theme="primary" class="primary-button" bind:tap="viewResult">查看我的结果</t-button><t-button block theme="light" bind:tap="viewLeaderboard">查看荣誉榜单</t-button></view>
+      <view wx:else class="completed-card surface"><view class="completed-seal muted-seal">候</view><text>{{detail.timeState === 'UPCOMING' ? '题目尚未开始' : '本题已经截止'}}</text><text class="semantic-small">{{detail.timeState === 'UPCOMING' ? '请在开放时间内回来作答。' : '作答通道已关闭，可前往查看荣誉榜。'}}</text><t-button wx:if="{{detail.timeState === 'ENDED'}}" block theme="primary" class="primary-button" bind:tap="viewLeaderboard">查看荣誉榜单</t-button></view>
+    </view>
+  </block>
+</view>

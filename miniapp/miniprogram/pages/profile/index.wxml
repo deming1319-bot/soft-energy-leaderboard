@@ -1,0 +1,23 @@
+<view class="page-body profile-page safe-top {{largeReading ? 'reading-large' : ''}}">
+  <view class="nav"><text class="nav__title">我的修习</text><view class="privacy" bindtap="openPrivacy">隐私与数据</view></view>
+  <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" text="正在整理修习档案" /></view>
+  <block wx:elif="{{profile}}">
+    <view class="profile-card"><view class="profile-pattern"/><view class="profile-main"><view class="avatar">{{initial}}</view><view><text>{{profile.nickname}}</text><text class="semantic-small">修习身份已独立建立</text></view></view><text class="profile-saying">日日精进，不疾而速。</text><view class="profile-stats"><view><text>{{profile.participationCount}}</text><text class="semantic-small">参与</text></view><view class="semantic-icon"/><view><text>{{profile.championCount}}</text><text class="semantic-small">冠军</text></view><view class="semantic-icon"/><view><text>{{profile.runnerUpCount}}</text><text class="semantic-small">亚军</text></view></view></view>
+    <view class="privacy-note"><view class="privacy-note__mark">安</view><view class="semantic-copy"><text class="semantic-strong">你的数据独立保存</text><text class="semantic-small">身份、答题和榜单记录均绑定当前微信用户，不会与他人混淆。</text></view></view>
+    <view class="settings-head"><text class="eyebrow">PREFERENCES</text><text>资料与设置</text></view>
+    <view class="settings-card surface">
+      <view wx:if="{{showTestCenter}}" class="test-center-entry" bindtap="openTestCenter"><view><text>测试中心 <text class="dev-badge">开发版</text></text><text class="semantic-small">{{testIdentityName ? '当前测试身份：' + testIdentityName : '切换10个测试账号并同步管理系统数据'}}</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="editProfile"><view><text>修习名</text><text class="semantic-small">当前：{{profile.nickname}}</text></view><text class="semantic-span">›</text></view>
+      <view><view><text>大字阅读</text><text class="semantic-small">放大题目、答案与判题说明</text></view><switch checked="{{largeReading}}" color="#465e50" bindchange="switchReading"/></view>
+      <view bindtap="openPrivacy"><view><text>隐私与数据</text><text class="semantic-small">个人信息清单与微信隐私指引</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openTerms"><view><text>用户协议</text><text class="semantic-small">了解答题、判定和使用规则</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openAccount"><view><text>账号与数据</text><text class="semantic-small">查看数据范围或申请注销</text></view><text class="semantic-span">›</text></view>
+      <view bindtap="openReport"><view><text>反馈与举报</text><text class="semantic-small">内容投诉、评分申诉与隐私请求</text></view><text class="semantic-span">›</text></view>
+    </view>
+    <view class="history-head"><view><text class="eyebrow">PRACTICE RECORDS</text><text>修习记录</text></view><text class="semantic-small">最近 {{results.length}} 条</text></view>
+    <view class="history-list">
+      <view wx:for="{{results}}" wx:key="id" class="history-item surface" data-id="{{item.activityId}}" bindtap="openResult"><view class="history-seal grade-{{item.grade}}">{{item.grade === 'CHAMPION' ? '冠' : item.grade === 'RUNNER_UP' ? '亚' : item.grade === 'REVIEW_REQUIRED' ? '审' : '习'}}</view><view class="history-content"><text>{{item.activityTitle}}</text><text class="semantic-small">{{item.timeText}}</text></view><view class="history-grade"><text>{{item.gradeLabel}}</text><text class="semantic-span">›</text></view></view>
+      <view wx:if="{{!results.length}}" class="empty-state"><view class="empty-seal">始</view><text>还没有修习记录</text><text class="semantic-small">从今日第一问开始，留下你的思考。</text></view>
+    </view>
+  </block>
+</view>

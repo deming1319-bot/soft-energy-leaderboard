@@ -1,0 +1,25 @@
+<view class="welcome safe-top">
+  <view class="welcome__orb orb-a"/><view class="welcome__orb orb-b"/>
+  <view class="welcome__brand"><view class="brand-seal">和</view><view><text>问道</text><text class="semantic-small">东方软能力修习</text></view></view>
+
+  <view class="welcome__hero">
+    <text class="overline">DAILY PRACTICE</text>
+    <view class="welcome__title"><text>由一问起，</text><text>向内观照。</text></view>
+    <text class="welcome__copy">在中华经典与生活哲思中，以答题回顾所学，以行动印证所知。</text>
+    <view class="welcome__motto"><view class="semantic-icon">“</view><text>知者行之始，行者知之成。</text></view>
+  </view>
+
+  <view class="agreement-card">
+    <view class="agreement-row" bindtap="toggleAgreement">
+      <view class="check {{checked ? 'checked' : ''}}">{{checked ? '✓' : ''}}</view>
+      <text>我已阅读并同意</text>
+      <text class="link" catchtap="openTerms">《用户协议》</text>
+      <text>与</text>
+      <text class="link" catchtap="openPrivacy">{{privacyName}}</text>
+    </view>
+    <text class="agreement-note">仅处理建立独立账号、答题记录和榜单所需的信息；首版不获取手机号、位置或通讯录。</text>
+    <button id="privacy-agree-btn" class="enter-button" disabled="{{!checked || entering}}" loading="{{entering}}" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="handlePrivacyAgreement" bindtap="handleButtonTap">同意并进入修习</button>
+    <view wx:if="{{error}}" class="entry-error">{{error}}</view>
+  </view>
+  <text class="welcome__footer">适合 30—60 岁用户 · 清晰阅读 · 克制激励</text>
+</view>

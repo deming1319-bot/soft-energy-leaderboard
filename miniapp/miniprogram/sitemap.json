@@ -1,0 +1,4 @@
+{
+  "desc": "问道修习平台页面索引",
+  "rules": [{ "action": "allow", "page": "*" }]
+}

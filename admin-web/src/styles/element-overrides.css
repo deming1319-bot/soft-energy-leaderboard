@@ -1,0 +1,21 @@
+.el-button { min-height: 40px; padding-inline: 18px; border-radius: 10px; font-weight: 650; letter-spacing: .01em; }
+.el-button--primary { box-shadow: 0 8px 18px rgba(163, 72, 59, .18); }
+.el-input__wrapper, .el-select__wrapper, .el-textarea__inner {
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(86, 77, 65, .18) inset !important;
+  transition: box-shadow .2s ease, background-color .2s ease;
+}
+.el-input__wrapper:hover, .el-select__wrapper:hover, .el-textarea__inner:hover {
+  box-shadow: 0 0 0 1px rgba(137, 59, 49, .45) inset !important;
+}
+.el-input__wrapper.is-focus, .el-select__wrapper.is-focused, .el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--cinnabar-600) inset, 0 0 0 3px rgba(163, 72, 59, .1) !important;
+}
+.el-table { --el-table-border-color: #ece7de; --el-table-header-bg-color: #f7f4ee; --el-table-row-hover-bg-color: #faf7f2; border-radius: 14px; }
+.el-table th.el-table__cell { color: var(--ink-650); font-size: 12px; letter-spacing: .06em; }
+.el-dialog { border-radius: 20px; box-shadow: var(--shadow-float); }
+.el-dialog__title { font-family: var(--font-serif); font-size: 22px; font-weight: 650; }
+.el-form-item__label { color: var(--ink-800); font-weight: 650; }
+.el-tabs__item { height: 48px; font-weight: 650; }
+.el-tag { border-radius: 999px; }
+

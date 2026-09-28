@@ -1,0 +1,50 @@
+<view class="test-page safe-top">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">测试中心</text><view class="dev-mark">DEV</view></view>
+
+  <view wx:if="{{!available}}" class="unavailable surface">
+    <view class="state-seal">隐</view>
+    <text>测试中心仅供开发验证</text>
+    <text class="semantic-small">体验版与正式版不会展示测试账号，也不能从路径直接进入。</text>
+    <button bindtap="goBack">返回上一页</button>
+  </view>
+
+  <block wx:else>
+    <view class="test-body">
+      <view class="test-hero">
+        <view class="hero-orbit"/><view class="hero-seal">验</view>
+        <text class="eyebrow">END-TO-END LAB</text>
+        <text class="hero-title">一处切换，全流程同步</text>
+        <text class="hero-copy">这里的题目、答案、评分和榜单全部来自正式后端。选择同名账号后，管理系统与小程序看到的是同一份数据。</text>
+        <view wx:if="{{currentNickname}}" class="active-identity"><text>当前测试身份</text><text>{{currentNickname}}</text></view>
+      </view>
+
+      <view wx:if="{{!unlocked}}" class="unlock-card surface">
+        <view class="section-heading"><text class="eyebrow">ADMIN VERIFY</text><text>管理员验证</text><text class="semantic-small">为防止普通学员切换他人身份，进入账号列表前需要验证管理员。密码不会保存到本地。</text></view>
+        <view class="field"><text>管理员账号</text><input value="{{username}}" maxlength="32" placeholder="请输入账号" bindinput="inputUsername" /></view>
+        <view class="field"><text>管理员密码</text><input value="{{password}}" password maxlength="64" placeholder="请输入密码" bindinput="inputPassword" confirm-type="done" bindconfirm="unlock" /></view>
+        <text wx:if="{{error}}" class="error-text">{{error}}</text>
+        <button class="unlock-button" loading="{{loading}}" disabled="{{loading}}" bindtap="unlock">验证并查看测试账号</button>
+        <text class="security-tip">连续输错会触发后台登录保护，请确认后再提交。</text>
+      </view>
+
+      <block wx:else>
+        <view class="section-heading account-heading"><text class="eyebrow">TEST ACCOUNTS</text><text>选择测试学员</text><text class="semantic-small">10个账号均为独立身份，可分别答题并参与冠军、亚军排序。</text></view>
+        <view class="account-grid">
+          <view wx:for="{{accounts}}" wx:key="testerKey" class="account-item {{currentTesterKey === item.testerKey ? 'active' : ''}}" data-key="{{item.testerKey}}" bindtap="selectAccount">
+            <view class="account-index">{{index === 9 ? index + 1 : '0' + (index + 1)}}</view>
+            <view class="account-copy"><text>{{item.nickname}}</text><text>{{currentTesterKey === item.testerKey ? '当前账号' : switchingKey === item.testerKey ? '切换中…' : '点击切换'}}</text></view>
+            <view class="account-state">{{currentTesterKey === item.testerKey ? '✓' : '›'}}</view>
+          </view>
+        </view>
+        <view wx:if="{{loading && !accounts.length}}" class="loading-note">正在读取统一测试账号…</view>
+        <text wx:if="{{error}}" class="error-text standalone">{{error}}</text>
+
+        <view class="sync-card surface"><view class="sync-seal">同</view><view><text>数据同步规则</text><text>例如在这里选择“张明”并提交答案，管理系统测试中心切换到“张明”后会看到相同成绩；答题记录页和榜单也会同步出现。</text></view></view>
+
+        <button class="primary-action" disabled="{{!currentTesterKey}}" bindtap="openQuestions">进入题目首页</button>
+        <button wx:if="{{currentTesterKey}}" class="exit-action" bindtap="exitIdentity">退出测试身份</button>
+        <button class="reverify-action" bindtap="reverifyAdmin">重新验证管理员</button>
+      </block>
+    </view>
+  </block>
+</view>

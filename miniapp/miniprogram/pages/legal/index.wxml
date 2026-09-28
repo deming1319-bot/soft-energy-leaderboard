@@ -1,0 +1,12 @@
+<view class="legal-page safe-top">
+  <view class="nav"><view class="nav__back" bindtap="goBack">‹</view><text class="nav__title">{{title}}</text><view class="nav__placeholder"/></view>
+  <view class="legal-body">
+    <view class="legal-head"><text class="eyebrow">{{eyebrow}}</text><text>{{title}}</text><text class="semantic-small">版本 {{version}}</text><view wx:if="{{privacy}}" bindtap="openPlatformPrivacy">打开微信完整隐私保护指引</view></view>
+    <view class="legal-intro">继续使用本小程序前，请理解与你有关的信息处理和使用规则。正文使用清晰日常语言，不以默认勾选代替你的确认。</view>
+    <view class="legal-section" wx:for="{{sections}}" wx:key="title">
+      <view class="section-no">{{index + 1}}</view>
+      <view><text>{{item.title}}</text><view class="semantic-paragraph" wx:for="{{item.paragraphs}}" wx:key="*this">{{item}}</view></view>
+    </view>
+    <view class="legal-end"><view class="semantic-icon">和</view><text>感谢你认真阅读</text><text class="semantic-small">如有疑问，可从“隐私与数据”联系微信客服。</text></view>
+  </view>
+</view>
