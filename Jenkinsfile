@@ -110,7 +110,10 @@ pipeline {
       }
       steps {
         script {
-          def deployRef = env.TAG_NAME ?: env.BRANCH_NAME
+          def rawDeployRef = env.TAG_NAME ?: env.BRANCH_NAME ?: env.GIT_LOCAL_BRANCH ?: env.GIT_BRANCH
+          def deployRef = (rawDeployRef ?: '')
+            .replaceFirst(/^origin\//, '')
+            .replaceFirst(/^refs\/heads\//, '')
           if (!(deployRef == 'main' || (deployRef ?: '').startsWith('v'))) {
             error("只允许从 main 或 v* 标签发布，当前来源：${deployRef ?: 'unknown'}")
           }

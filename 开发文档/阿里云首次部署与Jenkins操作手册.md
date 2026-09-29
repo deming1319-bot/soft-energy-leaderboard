@@ -291,25 +291,26 @@ sudo systemctl reload nginx
 
 1. 点击“新建任务”；
 2. 名称：`soft-energy-leaderboard`；
-3. 选择“多分支流水线”；
-4. Branch Sources 选择 Git；
-5. Project Repository 填写 `https://github.com/deming1319-bot/soft-energy-leaderboard.git`；
-6. Credentials 选择 `- none -`；
-7. Build Configuration 使用仓库根目录 `Jenkinsfile`；
-8. 扫描触发器设置“若没有运行则定期扫描”，间隔 5 分钟；
-9. 保存并执行“立即扫描多分支流水线”。
+3. 选择“流水线”；
+4. “流水线定义”选择 `Pipeline script from SCM`；
+5. SCM 选择 Git；
+6. Repository URL 填写 `https://github.com/deming1319-bot/soft-energy-leaderboard.git`；
+7. Credentials 选择 `- none -`；
+8. Branch Specifier 填写 `*/main`；
+9. Script Path 填写仓库根目录的 `Jenkinsfile`；
+10. 保存后第一次点击“立即构建”，使用 Jenkinsfile 默认参数完成只测试、不部署的 CI。
 
-Jenkins 官方说明，多分支流水线会为仓库中包含 Jenkinsfile 的分支自动创建任务，并提供 `BRANCH_NAME` 和 `checkout scm`；本项目 Jenkinsfile 已按此方式配置。
+当前项目只有负责人单人开发并固定使用 `main`，普通 Pipeline from SCM 已满足一键测试和发布需求。Jenkinsfile 会把普通流水线提供的 `GIT_BRANCH=origin/main` 规范化为 `main`，仍然只允许 `main` 或 `v*` 标签执行生产发布。
 
 ## 11. 第八步：第一次构建与发布
 
 第一次只验证，不部署：
 
-1. 打开 `main` 任务；
-2. 点击“Build with Parameters”；
+1. 打开 `soft-energy-leaderboard` 任务；
+2. 第一次点击“立即构建”，后续构建可点击“Build with Parameters”；
 3. `DEPLOY_TO_SERVER=false`；
 4. `RUN_MINIAPP_RELEASE_GATE=false`；
-5. 宝塔 Nginx 保持默认 `NGINX_BIN=/www/server/nginx/sbin/nginx`；若实际使用系统 Nginx，改成 `/usr/sbin/nginx`；
+5. 当前 ECS 使用系统 Nginx，保持默认 `NGINX_BIN=/usr/sbin/nginx`；
 6. 执行构建，确认三个质量阶段全部通过。
 
 第一次正式发布：
@@ -374,6 +375,6 @@ const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
 ## 15. 官方依据
 
 - [Jenkins Linux 安装与 Java 21 要求](https://www.jenkins.io/doc/book/installing/linux/)
-- [Jenkins 多分支流水线](https://www.jenkins.io/doc/book/pipeline/multibranch/)
+- [Jenkins 流水线](https://www.jenkins.io/doc/book/pipeline/)
 - [Jenkins Pipeline as Code](https://www.jenkins.io/doc/book/pipeline/pipeline-as-code/)
 - [微信小程序 CI](https://developers.weixin.qq.com/miniprogram/dev/devtools/ci.html)
