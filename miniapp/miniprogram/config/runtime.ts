@@ -1,6 +1,6 @@
 export type MiniappEnvironment = 'develop' | 'trial' | 'release'
 
-const DEVELOPMENT_API_BASE_URL = 'http://192.168.0.118:8081/api/v1'
+const DEVELOPMENT_API_BASE_URL = 'http://127.0.0.1:8081/api/v1'
 const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
 
 export interface RuntimeConfig {

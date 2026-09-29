@@ -9,7 +9,7 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
-const form = reactive({ username: 'admin', password: '123456' })
+const form = reactive({ username: '', password: '' })
 
 async function submit() {
   if (!form.username || !form.password) return

@@ -133,10 +133,10 @@ public class DevDataInitializer implements ApplicationRunner {
         draft.setStatus(ActivityStatus.DRAFT);
         activityRepository.save(draft);
 
-        MiniappUser user1 = createUser("demo-openid-1", "林知远", "13800138001");
-        MiniappUser user2 = createUser("demo-openid-2", "周静安", "13800138002");
-        MiniappUser user3 = createUser("demo-openid-3", "陈明澈", "13800138003");
-        MiniappUser user4 = createUser("demo-openid-4", "许若水", "13800138004");
+        MiniappUser user1 = createUser("demo-openid-1", "林知远", "00000000001");
+        MiniappUser user2 = createUser("demo-openid-2", "周静安", "00000000002");
+        MiniappUser user3 = createUser("demo-openid-3", "陈明澈", "00000000003");
+        MiniappUser user4 = createUser("demo-openid-4", "许若水", "00000000004");
 
         createSubmission(ended, user1, ended.getStandardAnswer(), now.minus(12, ChronoUnit.HOURS));
         createSubmission(ended, user2, String.join("\n", endedPoints.reversed()), now.minus(11, ChronoUnit.HOURS));
