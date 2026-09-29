@@ -298,11 +298,15 @@ sudo systemctl reload nginx
 7. Credentials 选择 `- none -`；
 8. Branch Specifier 填写 `*/main`；
 9. Script Path 填写仓库根目录的 `Jenkinsfile`；
-10. 保存后第一次点击“立即构建”，使用 Jenkinsfile 默认参数完成只测试、不部署的 CI。
+10. 取消勾选“轻量级检出”，使 Jenkinsfile 获取走支持 SCM 重试的完整检出路径；
+11. 将 Jenkins 全局 `SCM checkout retry count` 设为 `5`；
+12. 保存后第一次点击“立即构建”，使用 Jenkinsfile 默认参数完成只测试、不部署的 CI。
 
 当前项目只有负责人单人开发并固定使用 `main`，普通 Pipeline from SCM 已满足一键测试和发布需求。Jenkinsfile 会把普通流水线提供的 `GIT_BRANCH=origin/main` 规范化为 `main`，仍然只允许 `main` 或 `v*` 标签执行生产发布。
 
 Jenkins 第一次读取带参数的 Jenkinsfile 时，当前这一轮构建不一定已经获得新注册的参数。项目已在 Shell 阶段为部署目录、服务名、健康检查地址、Nginx 路径和小程序门禁设置与参数页一致的安全默认值；即使参数尚未注入，也只执行 CI，不会自动发布服务器。
+
+当前阿里云 ECS 到 GitHub 的 HTTPS 链路存在间歇性超时。不要使用第三方 GitHub 镜像或来历不明的代理；关闭轻量级检出并设置 5 次 SCM 重试后，Jenkins 会在完整检出失败时按官方机制等待并重试。该设置只增强拉取容错，不改变仓库、分支或发布条件。
 
 ## 11. 第八步：第一次构建与发布
 
