@@ -19,7 +19,7 @@
 - Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.<域名>/api/v1`。
 
-项目已配置格式有效的正式 AppID，朋友账号下的 GitHub 公开仓库和首次推送已经完成。还不能由开发人员代填的内容：正式域名、证书、对应 AppSecret 及运营主体资料。
+项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件，朋友账号下的 GitHub 公开仓库和首次推送已经完成。还不能由开发人员代填的内容：正式域名、证书及运营主体资料。任何 AppSecret 或生产密钥都不得写入 GitHub 和本文档。
 
 正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。GitHub、Jenkins、Nginx 和 MySQL 基础环境已完成，服务器仍未完成第一次业务发布。
 
@@ -306,9 +306,11 @@ sudo systemctl reload nginx
 
 Jenkins 第一次读取带参数的 Jenkinsfile 时，当前这一轮构建不一定已经获得新注册的参数。项目已在 Shell 阶段为部署目录、服务名、健康检查地址、Nginx 路径和小程序门禁设置与参数页一致的安全默认值；即使参数尚未注入，也只执行 CI，不会自动发布服务器。
 
-当前阿里云 ECS 到 GitHub 的 HTTPS 链路存在间歇性超时。不要使用第三方 GitHub 镜像或来历不明的代理；关闭轻量级检出并设置 5 次 SCM 重试后，Jenkins 会在完整检出失败时按官方机制等待并重试。该设置只增强拉取容错，不改变仓库、分支或发布条件。
+当前阿里云 ECS 通过运营商 DNS 获得的 GitHub 路径曾出现间歇性超时。不要使用第三方 GitHub 镜像或来历不明的代理；关闭轻量级检出并设置 5 次 SCM 重试后，Jenkins 会在完整检出失败时按官方机制等待并重试。该设置只增强拉取容错，不改变仓库、分支或发布条件。
 
 如果运营商 DNS 返回的 GitHub 地址持续不稳定，只能从 GitHub 官方 Meta API 当前 `web`/`git` 清单中选择经本机连续验证通过的地址，并在备份 `/etc/hosts` 后做临时解析。固定前必须同时验证 HTTPS 证书和 Jenkins 用户 `git ls-remote`；官方地址清单或网络条件变化后应重新测试，禁止将第三方镜像当作生产代码源。
+
+2026-09-29 已按上述规则将原文件备份到 `/root/hosts-backups/20260929-175802/hosts`，并把 `github.com` 临时固定到当时属于 GitHub 官方清单且在本机验证稳定的 `20.27.177.113`。固定后连续 5 次 HTTPS 请求和 Jenkins 用户连续 3 次 `git ls-remote` 全部成功，配置被保留，无需重启 Jenkins。此地址不是永久配置承诺；如果以后再次无法连接 GitHub，先核对 GitHub 官方 Meta 清单和证书，再决定重新选择地址或恢复备份，不得盲目保留失效 IP。
 
 ## 11. 第八步：第一次构建与发布
 
