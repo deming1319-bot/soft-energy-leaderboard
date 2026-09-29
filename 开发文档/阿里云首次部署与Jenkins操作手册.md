@@ -40,6 +40,8 @@
 
 当前物理内存约 3.5 GiB，可用 4 GiB Swap 已配置。Jenkins 保持单执行器，流水线继续限制 Maven、Node 和 Java 堆，避免构建与 MySQL、Nginx、后端进程相互挤占。
 
+2026-09-29 已成功执行 `deploy/scripts/prepare-server.sh`，部署账号、目录、systemd 和 sudoers 已落地；随后为加载新增用户组执行 Jenkins 重启时失败。不要重复运行安装流程，先按 systemd 日志定位启动失败原因。
+
 ## 3. 正确网络结构
 
 ```text
