@@ -302,6 +302,8 @@ sudo systemctl reload nginx
 
 当前项目只有负责人单人开发并固定使用 `main`，普通 Pipeline from SCM 已满足一键测试和发布需求。Jenkinsfile 会把普通流水线提供的 `GIT_BRANCH=origin/main` 规范化为 `main`，仍然只允许 `main` 或 `v*` 标签执行生产发布。
 
+Jenkins 第一次读取带参数的 Jenkinsfile 时，当前这一轮构建不一定已经获得新注册的参数。项目已在 Shell 阶段为部署目录、服务名、健康检查地址、Nginx 路径和小程序门禁设置与参数页一致的安全默认值；即使参数尚未注入，也只执行 CI，不会自动发布服务器。
+
 ## 11. 第八步：第一次构建与发布
 
 第一次只验证，不部署：

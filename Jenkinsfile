@@ -46,6 +46,7 @@ pipeline {
     stage('环境校验') {
       steps {
         sh '''
+          NGINX_BIN="${NGINX_BIN:-/usr/sbin/nginx}"
           set -eu
           java -version 2>&1 | grep 'version "21'
           mvn -version
@@ -88,6 +89,7 @@ pipeline {
     stage('小程序校验') {
       steps {
         sh '''
+          RUN_MINIAPP_RELEASE_GATE="${RUN_MINIAPP_RELEASE_GATE:-false}"
           set -eu
           cd miniapp
           pnpm install --frozen-lockfile
@@ -106,7 +108,7 @@ pipeline {
 
     stage('原子发布') {
       when {
-        expression { return params.DEPLOY_TO_SERVER }
+        expression { return params.DEPLOY_TO_SERVER == true }
       }
       steps {
         script {
@@ -119,6 +121,11 @@ pipeline {
           }
         }
         sh '''
+          DEPLOY_ROOT="${DEPLOY_ROOT:-/opt/soft-energy}"
+          SERVICE_NAME="${SERVICE_NAME:-soft-energy-api}"
+          HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:8081/api/v1/health}"
+          ADMIN_URL="${ADMIN_URL:-http://127.0.0.1:18080}"
+          NGINX_BIN="${NGINX_BIN:-/usr/sbin/nginx}"
           set -eu
           umask 0027
           DEPLOY_ROOT="${DEPLOY_ROOT%/}"
@@ -198,7 +205,7 @@ pipeline {
   post {
     success {
       script {
-        if (params.DEPLOY_TO_SERVER) {
+        if (params.DEPLOY_TO_SERVER == true) {
           echo '后端、管理端和小程序校验均通过，服务器发布成功。'
         } else {
           echo '后端、管理端和小程序校验均通过；本次仅执行 CI，未发布服务器。'
