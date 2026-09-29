@@ -1,7 +1,7 @@
 # 阿里云首次部署与 Jenkins 操作手册
 
-> 最近更新：2026-09-19  
-> 目标：让项目负责人按本手册完成阿里云、RDS、域名、Jenkins 和第一次后端/管理端发布。  
+> 最近更新：2026-09-29
+> 目标：让项目负责人按本手册完成阿里云 ECS、同机 MySQL、域名、Jenkins 和第一次后端/管理端发布。
 > 安全规则：任何数据库密码、微信 AppSecret、JWT 密钥、私钥都只写在服务器或 Jenkins Credentials，不写入 GitHub 和本文件。
 
 ## 1. 当前结论
@@ -16,28 +16,29 @@
 - systemd 使用低权限 `softenergy` 用户运行 Java；
 - 后端只监听 `127.0.0.1:8081`，不向公网开放；
 - Nginx 使用 443 对外提供管理后台和小程序 API；
-- Spring Boot 通过 RDS 内网地址连接 MySQL，Flyway 自动执行 V1—V4 迁移；
+- Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.<域名>/api/v1`。
 
-项目已配置格式有效的正式 AppID，GitHub 私有仓库和首次推送已经完成。还不能由开发人员代填的内容：正式域名、证书、RDS 地址和密码、对应 AppSecret及运营主体资料。
+项目已配置格式有效的正式 AppID，朋友账号下的 GitHub 公开仓库和首次推送已经完成。还不能由开发人员代填的内容：正式域名、证书、对应 AppSecret 及运营主体资料。
 
-2026-09-19 用户已确认正式采用以下发布链路：先上传 GitHub 私有仓库，再由阿里云 ECS 上的 Jenkins 拉取、测试和发布后端及管理系统。当前只是代码侧部署配置完成，服务器从未完成第一次生产发布。
+正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。GitHub、Jenkins、Nginx 和 MySQL 基础环境已完成，服务器仍未完成第一次业务发布。
+
+完整执行状态和中断恢复入口见 [线上部署执行记录](./线上部署执行记录.md)。
 
 ## 2. 已登记的阿里云服务器
 
 | 项目 | 当前值 |
 | --- | --- |
-| 地域 | 华中 1（武汉） |
-| 公网 IP | `8.148.74.145` |
-| 私网 IP | `172.18.63.252` |
-| 规格 | 2 vCPU / 1 GiB / 30 GiB ESSD |
-| 镜像 | 宝塔 Linux 面板阿里云专享版 11.1.0 |
-| 到期时间 | 2026-09-09 23:59:59 |
-| 当前核验状态 | 2026-09-19 尚未确认已续费，当前电脑未能建立 SSH 连接，必须先在阿里云控制台复核 |
+| 实例 | `iZ2ze4fcoylb8edj1um1isZ` / `i-2ze4fcoylb8edj1um1is` |
+| 地域 | 华北 2（北京）/ F |
+| 公网 IP | `123.56.169.70` |
+| 私网 IP | `172.24.3.178` |
+| 规格 | 2 vCPU / 4 GiB / 60 GiB ESSD |
+| 镜像 | Alibaba Cloud Linux 3.2104 U13.4，x86_64 |
+| 到期时间 | 2026-12-19 23:59:59 |
+| 当前核验状态 | 实例运行中；基础环境、Jenkins、Nginx、MySQL 和 4 GiB Swap 已完成 |
 
-以上 IP 和规格是最后一次登记值，不代表实例当前仍可用。如果旧实例已释放，应先创建替代 ECS，并把新公网 IP、私网 IP、到期时间、DNS、安全组和 RDS 白名单同步回本手册，再执行后续步骤。
-
-1 GiB 内存低于 Jenkins 官方给小团队建议的 4 GiB。当前流水线已经把 Maven、Node 和 Java 应用分别限制在 384 MiB，但上线前仍必须创建 4 GiB 交换空间。正式运营建议升级到至少 2 GiB；如果要稳定地在服务器上构建，建议 4 GiB。
+当前物理内存约 3.5 GiB，可用 4 GiB Swap 已配置。Jenkins 保持单执行器，流水线继续限制 Maven、Node 和 Java 堆，避免构建与 MySQL、Nginx、后端进程相互挤占。
 
 ## 3. 正确网络结构
 
@@ -46,7 +47,7 @@
   -> HTTPS 443 / https://api.<域名>/api/v1
   -> Nginx
   -> 127.0.0.1:8081 Spring Boot
-  -> RDS 内网地址:3306 / soft_energy_prod
+  -> 127.0.0.1:3306 / soft_energy_prod
 
 管理员浏览器
   -> HTTPS 443 / https://admin.<域名>
@@ -60,39 +61,38 @@
 - `443`：公网，正式管理端与 API；
 - 不开放 `8080`、`8081`、`18080`、`3306`。
 
-Jenkins 只监听 `127.0.0.1:8080`，通过 SSH 隧道访问，不直接暴露公网。
+Jenkins 只监听 `127.0.0.1:8080`。初始化阶段由 Nginx 暂时代理为 `http://123.56.169.70/jenkins/`；域名证书就绪后必须切换 HTTPS，并限制管理入口访问范围。安全组不开放 8080。
 
 ## 4. 第一步：阿里云控制台准备
 
 ### 4.1 ECS
 
-1. 先确认旧 ECS 是否已经续费、处于“运行中”，并核对公网 IP 和私网 IP 是否仍与第 2 节一致；
-2. 如果旧实例已释放，先创建同地域替代 ECS，并同步更新 DNS、RDS 白名单和本文档中的 IP；
-3. 确认实例可通过阿里云远程连接或 SSH 登录后，创建一次系统盘手动快照；
-4. 开启自动续费并设置到期提醒，避免正式服务到期停机；
-5. 安全组按第 3 节配置；
-6. 建议先升级内存；如暂不升级，必须执行第 5.1 节交换空间命令。
+1. 当前实例已确认运行，公网和私网 IP 见第 2 节；
+2. 在第一次业务发布前创建一次系统盘手动快照；
+3. 开启自动续费并设置到期提醒，避免正式服务到期停机；
+4. 安全组保留 80/443，部署完成后删除无用 3389，并把 22 收紧到管理员固定出口 IP；
+5. 保持 4 GiB Swap 和 Jenkins 单执行器。
 
-### 4.2 RDS MySQL
+### 4.2 同机 MySQL
 
-创建与 ECS 同地域、同 VPC 的阿里云 RDS MySQL 8.4：
+当前没有购买 RDS，已在 ECS 安装 MySQL 8.0.46：
 
-1. 数据库名：`soft_energy_prod`；
-2. 字符集：`utf8mb4`；
+1. 数据库：`soft_energy_prod`；
+2. 字符集：`utf8mb4`；排序规则：`utf8mb4_0900_ai_ci`；
 3. 应用账号：`softenergy_app`，只授权 `soft_energy_prod`；
-4. 白名单只允许 ECS 私网地址 `172.18.63.252/32`；
-5. 开启每日备份和日志备份，保留 14 天；
-6. 记录 RDS 内网连接地址，不使用公网地址。
+4. 只监听 `127.0.0.1:3306`，安全组不开放 3306；
+5. MySQL X 端口 33060 已关闭；
+6. root 和应用凭据分别保存在服务器 `/root/.my.cnf` 与 `/root/soft-energy-db.env`，权限均为 600。
 
-不在 ECS 上安装生产 MySQL。当前 1 GiB 内存不足以同时稳定运行 Jenkins、Java、Nginx 和 MySQL。
+应用账号已实际登录验证成功。首次发布前还要配置自动备份并验证恢复；业务量、可用性或运维要求提高后，再迁移到同地域 RDS。
 
 ### 4.3 域名与证书
 
-准备两个已备案域名并解析到 `8.148.74.145`：
+准备两个已备案域名并解析到 `123.56.169.70`：
 
 ```text
-admin.<你的域名>  -> 8.148.74.145
-api.<你的域名>    -> 8.148.74.145
+admin.<你的域名>  -> 123.56.169.70
+api.<你的域名>    -> 123.56.169.70
 ```
 
 申请对应 HTTPS 证书。微信公众平台的 `request` 合法域名填写 `https://api.<你的域名>`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
@@ -174,21 +174,15 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 不要在阿里云安全组开放 8080。
 
-## 6. 第三步：从自己的电脑进入 Jenkins
+## 6. 第三步：进入 Jenkins
 
-Windows PowerShell 执行：
-
-```powershell
-ssh -L 18080:127.0.0.1:8080 root@8.148.74.145
-```
-
-保持窗口不关闭，在浏览器访问：
+当前初始化入口：
 
 ```text
-http://127.0.0.1:18080
+http://123.56.169.70/jenkins/
 ```
 
-使用服务器上读取的初始密码解锁。安装推荐插件后，额外确认以下插件存在：
+Jenkins 初始化向导已经完成，管理员用户已经创建。推荐插件主体已经安装，并已确认以下部署插件：
 
 - Pipeline；
 - Git；
@@ -196,28 +190,32 @@ http://127.0.0.1:18080
 - Credentials Binding；
 - Pipeline: Stage View。
 
-创建 Jenkins 管理员账号后，不继续使用初始密码。
+不要共享 Jenkins 密码。当前入口为临时 HTTP 管理入口，域名和 TLS 证书就绪后切换 HTTPS。
 
 ## 7. 第四步：GitHub 仓库
 
-2026-09-19 已完成：
+2026-09-28 已完成：
 
-- GitHub 当前账号：`zhouya166913-cell`；
-- 私有仓库：`https://github.com/zhouya166913-cell/soft-energy-leaderboard`；
-- 本地分支：`main`；
-- 本地 Remote：`origin`；
-- 首次推送根提交：`7069997`。
+- GitHub 账号：`deming1319-bot`；
+- 公开仓库：`https://github.com/deming1319-bot/soft-energy-leaderboard`；
+- 默认分支：`main`；
+- 首次推送根提交：`4cedd42`；
+- 仓库包含 `backend`、`admin-web`、`miniapp`、`deploy` 和根目录 `Jenkinsfile`。
 
-Jenkins 尚未接入仓库。仓库当前位于个人账号下，后续如需要多人交接，应迁移到 GitHub Organization 并使用团队权限，不能共享个人账号密码。
+Jenkins 尚未接入仓库。当前仓库为公开仓库，首次接入可使用只读 HTTPS 地址而不保存 GitHub 密码或个人令牌：
 
-下一步是在 Jenkins 中配置只读取该私有仓库所需的最小权限凭据，并创建 Multibranch Pipeline；不需要在服务器手工复制业务代码。
+```text
+https://github.com/deming1319-bot/soft-energy-leaderboard.git
+```
+
+后续如改为私有仓库，再为 Jenkins 配置仅访问本仓库的 GitHub App 凭据。不要共享个人 GitHub 密码。
 
 ## 8. 第五步：准备服务器目录与生产配置
 
 GitHub 仓库完成后，在服务器临时克隆仓库并执行：
 
 ```bash
-git clone <私有仓库URL> /tmp/soft-energy-bootstrap
+git clone https://github.com/deming1319-bot/soft-energy-leaderboard.git /tmp/soft-energy-bootstrap
 cd /tmp/soft-energy-bootstrap
 sudo bash deploy/scripts/prepare-server.sh
 ```
@@ -239,7 +237,7 @@ sudo vi /opt/soft-energy/shared/application-prod.yml
 
 `soft-energy.env` 必须替换：
 
-- `DB_URL`：RDS 内网地址；
+- `DB_URL`：服务器现有 `/root/soft-energy-db.env` 中的本机 MySQL 地址；
 - `DB_USERNAME`、`DB_PASSWORD`；
 - `JWT_SECRET_BASE64`、`PHONE_KEY_BASE64`、`PHONE_HMAC_BASE64`；
 - `WECHAT_APP_ID`、`WECHAT_APP_SECRET`；
@@ -279,31 +277,18 @@ sudo systemctl reload nginx
 
 ## 10. 第七步：Jenkins 控制台配置
 
-### 10.1 GitHub 凭证
+### 10.1 GitHub 访问
 
-推荐创建只安装到本项目仓库的 GitHub App：
-
-- Contents：Read-only；
-- Metadata：Read-only；
-- Pull requests：Read-only；
-- Commit statuses：Read and write。
-
-在 Jenkins：`Manage Jenkins -> Credentials -> System -> Global credentials` 添加 GitHub App，ID 使用：
-
-```text
-github-app-soft-energy
-```
-
-私钥只粘贴进 Jenkins Credentials，不放入代码仓库。
+当前仓库为公开仓库，Jenkins 拉取代码时不需要 GitHub 凭据，直接填写仓库 HTTPS 地址即可。若以后改为私有仓库，再创建只安装到本项目仓库、只拥有 Contents Read-only 和 Metadata Read-only 权限的 GitHub App；私钥只能保存到 Jenkins Credentials，不能提交到代码仓库。
 
 ### 10.2 创建流水线
 
 1. 点击“新建任务”；
 2. 名称：`soft-energy-leaderboard`；
 3. 选择“多分支流水线”；
-4. Branch Sources 选择 GitHub；
-5. Credentials 选择 `github-app-soft-energy`；
-6. Repository 选择正式私有仓库；
+4. Branch Sources 选择 Git；
+5. Project Repository 填写 `https://github.com/deming1319-bot/soft-energy-leaderboard.git`；
+6. Credentials 选择 `- none -`；
 7. Build Configuration 使用仓库根目录 `Jenkinsfile`；
 8. 扫描触发器设置“若没有运行则定期扫描”，间隔 5 分钟；
 9. 保存并执行“立即扫描多分支流水线”。
@@ -323,7 +308,7 @@ Jenkins 官方说明，多分支流水线会为仓库中包含 Jenkinsfile 的�
 
 第一次正式发布：
 
-1. 确认 RDS、生产配置、Nginx 和证书已完成；
+1. 确认 MySQL、生产配置和 Nginx 已完成；公网 IP 验证阶段可暂不配置正式证书；
 2. 再次打开 `main -> Build with Parameters`；
 3. 勾选 `DEPLOY_TO_SERVER=true`；
 4. 小程序正式域名和主体资料没补齐前仍保持 `RUN_MINIAPP_RELEASE_GATE=false`；
@@ -360,7 +345,7 @@ sudo journalctl -u soft-energy-api -n 100 --no-pager
 const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
 ```
 
-替换为真实域名。不要填写 `:8081`，也不要填写 RDS 地址。小程序只访问 Nginx 的 HTTPS 443。
+替换为真实域名。不要填写 `:8081`，也不要填写数据库地址。小程序只访问 Nginx 的 HTTPS 443。
 
 同时完成：
 
@@ -375,9 +360,7 @@ const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
 
 ## 14. 当前还需要项目负责人提供
 
-- GitHub 组织私有仓库 URL 或指定账号创建私有仓库的明确授权；
 - 正式域名及备案状态；
-- RDS 实例内网地址、数据库名和应用账号（密码只在服务器填写）；
 - 与项目现有微信 AppID 对应的 AppSecret（只在服务器填写）；
 - 运营主体、隐私联系人、联系地址和小程序备案号；
 - 管理员正式初始账号及强密码。
