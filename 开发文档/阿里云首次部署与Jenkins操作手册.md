@@ -239,6 +239,8 @@ sudo vi /opt/soft-energy/shared/application-prod.yml
 
 该脚本会从服务器 `/root/soft-energy-db.env` 安全读取数据库密码，自动生成 JWT、手机号加密和 HMAC 密钥，并在终端隐密询问微信 AppSecret 与管理员密码。运行脚本时不要与后续命令一起批量粘贴；应在脚本开始提示后逐项输入。
 
+2026-09-29 已在当前 ECS 独立运行脚本并通过全部安全检查，真实敏感值只保存在服务器 `/opt/soft-energy/shared/soft-energy.env`，未写入 GitHub 或部署文档。
+
 `soft-energy.env` 最终必须包含：
 
 - `DB_URL`：服务器现有 `/root/soft-energy-db.env` 中的本机 MySQL 地址；

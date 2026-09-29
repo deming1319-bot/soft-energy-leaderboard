@@ -14,7 +14,7 @@ pipeline {
     string(name: 'SERVICE_NAME', defaultValue: 'soft-energy-api', description: 'systemd 服务名')
     string(name: 'HEALTH_URL', defaultValue: 'http://127.0.0.1:8081/api/v1/health', description: '后端健康检查地址')
     string(name: 'ADMIN_URL', defaultValue: 'http://127.0.0.1:18080', description: 'Nginx 管理端本机检查地址')
-    string(name: 'NGINX_BIN', defaultValue: '/www/server/nginx/sbin/nginx', description: '宝塔或系统 Nginx 可执行文件路径')
+    string(name: 'NGINX_BIN', defaultValue: '/usr/sbin/nginx', description: '当前服务器的系统 Nginx 可执行文件路径')
     booleanParam(name: 'DEPLOY_TO_SERVER', defaultValue: false, description: '仅在 main 或 v* 标签构建时勾选，执行生产发布')
     booleanParam(name: 'RUN_MINIAPP_RELEASE_GATE', defaultValue: false, description: '正式 AppID、域名和主体资料补齐后勾选')
   }
