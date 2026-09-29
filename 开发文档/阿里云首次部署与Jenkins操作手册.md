@@ -17,11 +17,11 @@
 - 后端只监听 `127.0.0.1:8081`，不向公网开放；
 - Nginx 使用 443 对外提供管理后台和小程序 API；
 - Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
-- 小程序不会也不能直接连接 MySQL，只调用 `https://api.<域名>/api/v1`。
+- 小程序不会也不能直接连接 MySQL，只调用 `https://api.ruannengliang.top/api/v1`。
 
-项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件，朋友账号下的 GitHub 公开仓库和首次推送已经完成。还不能由开发人员代填的内容：正式域名、证书及运营主体资料。任何 AppSecret 或生产密钥都不得写入 GitHub 和本文档。
+项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件，朋友账号下的 GitHub 公开仓库和首次推送已经完成。正式主域名已确定为 `ruannengliang.top`，还需要完成域名实名认证/ICP 备案确认、TLS 证书及运营主体资料。任何 AppSecret 或生产密钥都不得写入 GitHub 和本文档。
 
-正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。GitHub、Jenkins、Nginx 和 MySQL 基础环境已完成，服务器仍未完成第一次业务发布。
+正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。Jenkins 第 8 次构建已完成第一次业务发布，公网 IP 下的后端健康接口、管理端和 Jenkins 入口均已验证；当前进入正式域名 HTTPS 和小程序重新发布阶段。
 
 完整执行状态和中断恢复入口见 [线上部署执行记录](./线上部署执行记录.md)。
 
@@ -46,13 +46,13 @@
 
 ```text
 微信小程序
-  -> HTTPS 443 / https://api.<域名>/api/v1
+  -> HTTPS 443 / https://api.ruannengliang.top/api/v1
   -> Nginx
   -> 127.0.0.1:8081 Spring Boot
   -> 127.0.0.1:3306 / soft_energy_prod
 
 管理员浏览器
-  -> HTTPS 443 / https://admin.<域名>
+  -> HTTPS 443 / https://admin.ruannengliang.top
   -> Nginx 静态文件 + /api 反向代理
 ```
 
@@ -90,14 +90,14 @@ Jenkins 只监听 `127.0.0.1:8080`。初始化阶段由 Nginx 暂时代理为 `h
 
 ### 4.3 域名与证书
 
-准备两个已备案域名并解析到 `123.56.169.70`：
+在已备案主域名下准备两个子域名并解析到 `123.56.169.70`：
 
 ```text
-admin.<你的域名>  -> 123.56.169.70
-api.<你的域名>    -> 123.56.169.70
+admin.ruannengliang.top  -> 123.56.169.70
+api.ruannengliang.top    -> 123.56.169.70（A 记录已创建并经公共 DNS 验证）
 ```
 
-申请对应 HTTPS 证书。微信公众平台的 `request` 合法域名填写 `https://api.<你的域名>`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
+申请对应 HTTPS 证书。微信公众平台的 `request` 合法域名填写 `https://api.ruannengliang.top`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
 
 ## 5. 第二步：在服务器终端安装运行环境
 
@@ -347,8 +347,8 @@ Jenkins 第一次读取带参数的 Jenkinsfile 时，当前这一轮构建不�
 sudo systemctl status soft-energy-api --no-pager
 curl -fsS http://127.0.0.1:8081/api/v1/health
 curl -fsS http://127.0.0.1:18080/api/v1/health
-curl -I https://admin.<你的域名>/
-curl -fsS https://api.<你的域名>/api/v1/health
+curl -I https://admin.ruannengliang.top/
+curl -fsS https://api.ruannengliang.top/api/v1/health
 sudo journalctl -u soft-energy-api -n 100 --no-pager
 ```
 
@@ -356,7 +356,7 @@ sudo journalctl -u soft-energy-api -n 100 --no-pager
 
 ## 13. 小程序连接线上后端
 
-正式 API 域名确定后，只需要把 `miniapp/miniprogram/config/runtime.ts` 中：
+`api.ruannengliang.top` 完成 ICP 备案、TLS 和微信合法域名配置后，把 `miniapp/miniprogram/config/runtime.ts` 中：
 
 ```ts
 const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
@@ -377,10 +377,8 @@ const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
 
 ## 14. 当前还需要项目负责人提供
 
-- 正式域名及备案状态；
-- 与项目现有微信 AppID 对应的 AppSecret（只在服务器填写）；
+- `ruannengliang.top` 的实名认证与 ICP 备案状态；
 - 运营主体、隐私联系人、联系地址和小程序备案号；
-- 管理员正式初始账号及强密码。
 
 ## 15. 官方依据
 
