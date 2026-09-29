@@ -40,7 +40,7 @@
 
 当前物理内存约 3.5 GiB，可用 4 GiB Swap 已配置。Jenkins 保持单执行器，流水线继续限制 Maven、Node 和 Java 堆，避免构建与 MySQL、Nginx、后端进程相互挤占。
 
-2026-09-29 已成功执行 `deploy/scripts/prepare-server.sh`，部署账号、目录、systemd 和 sudoers 已落地；随后为加载新增用户组执行 Jenkins 重启时失败。不要重复运行安装流程，先按 systemd 日志定位启动失败原因。
+2026-09-29 已成功执行 `deploy/scripts/prepare-server.sh`，部署账号、目录、systemd 和 sudoers 已落地。Jenkins 首次重启短暂失败后由 systemd 自动恢复，服务、用户组、目录读写权限和最小 sudo 权限均已验证通过，无需重复运行安装流程。
 
 ## 3. 正确网络结构
 
@@ -233,11 +233,13 @@ sudo bash deploy/scripts/prepare-server.sh
 编辑：
 
 ```bash
-sudo vi /opt/soft-energy/shared/soft-energy.env
+sudo bash deploy/scripts/configure-production.sh
 sudo vi /opt/soft-energy/shared/application-prod.yml
 ```
 
-`soft-energy.env` 必须替换：
+该脚本会从服务器 `/root/soft-energy-db.env` 安全读取数据库密码，自动生成 JWT、手机号加密和 HMAC 密钥，并在终端隐密询问微信 AppSecret 与管理员密码。运行脚本时不要与后续命令一起批量粘贴；应在脚本开始提示后逐项输入。
+
+`soft-energy.env` 最终必须包含：
 
 - `DB_URL`：服务器现有 `/root/soft-energy-db.env` 中的本机 MySQL 地址；
 - `DB_USERNAME`、`DB_PASSWORD`；
