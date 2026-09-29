@@ -34,7 +34,12 @@ pipeline {
     stage('检出代码') {
       steps {
         deleteDir()
-        checkout scm
+        script {
+          def checkoutVars = checkout scm
+          env.CHECKED_OUT_REF = checkoutVars.GIT_BRANCH ?: ''
+          env.CHECKED_OUT_COMMIT = checkoutVars.GIT_COMMIT ?: ''
+          echo "检出来源：${env.CHECKED_OUT_REF ?: 'unknown'}"
+        }
         sh '''
           set -eu
           git rev-parse --verify HEAD
@@ -112,7 +117,7 @@ pipeline {
       }
       steps {
         script {
-          def rawDeployRef = env.TAG_NAME ?: env.BRANCH_NAME ?: env.GIT_LOCAL_BRANCH ?: env.GIT_BRANCH
+          def rawDeployRef = env.TAG_NAME ?: env.BRANCH_NAME ?: env.GIT_LOCAL_BRANCH ?: env.GIT_BRANCH ?: env.CHECKED_OUT_REF
           def deployRef = (rawDeployRef ?: '')
             .replaceFirst('^origin/', '')
             .replaceFirst('^refs/heads/', '')
