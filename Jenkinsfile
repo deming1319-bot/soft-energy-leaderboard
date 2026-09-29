@@ -112,8 +112,8 @@ pipeline {
         script {
           def rawDeployRef = env.TAG_NAME ?: env.BRANCH_NAME ?: env.GIT_LOCAL_BRANCH ?: env.GIT_BRANCH
           def deployRef = (rawDeployRef ?: '')
-            .replaceFirst(/^origin\//, '')
-            .replaceFirst(/^refs\/heads\//, '')
+            .replaceFirst('^origin/', '')
+            .replaceFirst('^refs/heads/', '')
           if (!(deployRef == 'main' || (deployRef ?: '').startsWith('v'))) {
             error("只允许从 main 或 v* 标签发布，当前来源：${deployRef ?: 'unknown'}")
           }
@@ -141,8 +141,7 @@ pipeline {
             echo "缺少 $SHARED_DIR/soft-energy.env，请先写入生产数据库和微信密钥"
             exit 1
           }
-          if grep -Eqi 'replace-with|your-rds-host|example\.com|__REPLACE_' \
-              "$SHARED_DIR/application-prod.yml" "$SHARED_DIR/soft-energy.env"; then
+          if grep -Eqi 'replace-with|your-rds-host|example[.]com|__REPLACE_' "$SHARED_DIR/application-prod.yml" "$SHARED_DIR/soft-energy.env"; then
             echo "生产配置仍包含占位值，拒绝发布。"
             exit 1
           fi
