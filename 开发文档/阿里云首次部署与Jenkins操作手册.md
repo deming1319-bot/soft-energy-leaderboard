@@ -1,6 +1,6 @@
 # 阿里云首次部署与 Jenkins 操作手册
 
-> 最近更新：2026-09-29
+> 最近更新：2026-09-30
 > 目标：让项目负责人按本手册完成阿里云 ECS、同机 MySQL、域名、Jenkins 和第一次后端/管理端发布。
 > 安全规则：任何数据库密码、微信 AppSecret、JWT 密钥、私钥都只写在服务器或 Jenkins Credentials，不写入 GitHub 和本文件。
 
@@ -19,7 +19,7 @@
 - Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.ruannengliang.top/api/v1`。
 
-项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件，朋友账号下的 GitHub 公开仓库和首次推送已经完成。正式主域名已确定为 `ruannengliang.top`，还需要完成域名实名认证/ICP 备案确认、TLS 证书及运营主体资料。任何 AppSecret 或生产密钥都不得写入 GitHub 和本文档。
+项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。正式主域名已确定为 `ruannengliang.top`，备案控制台当前显示管局审核中，仍需在订单详情确认包含该域名并等待审核完成。任何 AppSecret、生产密钥或备案个人资料都不得写入 GitHub 和本文档。
 
 正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。Jenkins 第 8 次构建已完成第一次业务发布，公网 IP 下的后端健康接口、管理端和 Jenkins 入口均已验证；当前进入正式域名 HTTPS 和小程序重新发布阶段。
 
@@ -198,13 +198,13 @@ Jenkins 初始化向导已经完成，管理员用户已经创建。推荐插件
 
 2026-09-28 已完成：
 
-- GitHub 账号：`deming1319-bot`；
+- GitHub 仓库所有者/登录账号：`deming1319-bot`；
 - 公开仓库：`https://github.com/deming1319-bot/soft-energy-leaderboard`；
 - 默认分支：`main`；
 - 首次推送根提交：`4cedd42`；
 - 仓库包含 `backend`、`admin-web`、`miniapp`、`deploy` 和根目录 `Jenkinsfile`。
 
-Jenkins 尚未接入仓库。当前仓库为公开仓库，首次接入可使用只读 HTTPS 地址而不保存 GitHub 密码或个人令牌：
+Jenkins 已通过普通 Pipeline from SCM 接入该公开仓库并固定检出 `main`，使用只读 HTTPS 地址，不保存 GitHub 密码或个人令牌：
 
 ```text
 https://github.com/deming1319-bot/soft-energy-leaderboard.git
