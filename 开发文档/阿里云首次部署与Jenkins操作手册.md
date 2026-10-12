@@ -19,7 +19,7 @@
 - Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.ruannengliang.top/api/v1`。
 
-项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。`ruannengliang.top` 的 ICP 已通过，公安联网备案正在审核；根域名和 API 域名 DNS 已完成，两张 TLS 证书已上传服务器受限目录并校验通过，但尚未安装到 Nginx。任何 AppSecret、生产密钥、证书私钥或备案个人资料都不得写入 GitHub 和本文档。
+项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。`ruannengliang.top` 的 ICP 已通过，公安联网备案正在审核；根域名和 API 域名 DNS、两张 TLS 证书安装、Nginx HTTPS 及公网验证均已完成。任何 AppSecret、生产密钥、证书私钥或备案个人资料都不得写入 GitHub 和本文档。
 
 正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。Jenkins 第 8 次构建已完成第一次业务发布，公网 IP 下的后端健康接口、管理端和 Jenkins 入口均已验证；当前进入正式域名 HTTPS 和小程序重新发布阶段。
 
@@ -97,7 +97,7 @@ ruannengliang.top      -> 123.56.169.70（主机记录 `@`）
 api.ruannengliang.top  -> 123.56.169.70
 ```
 
-2026-10-12 已分别签发根域名与 API 域名的 Nginx 证书，证书页面显示有效期至 2027-01-10。证书包必须从开发电脑的非仓库目录安全上传到服务器受限目录，私钥权限设为仅 root 可读。微信公众平台的 `request` 合法域名填写 `https://api.ruannengliang.top`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
+2026-10-12 已分别签发并安装根域名与 API 域名的 Nginx 证书，公网验证有效期至北京时间 2027-01-10 07:59:59，私钥权限为仅 root 可读。正式管理端、API 和 Jenkins 均已通过 HTTPS 访问验证，80 端口只做 301 跳转。微信公众平台的 `request` 合法域名填写 `https://api.ruannengliang.top`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
 
 ## 5. 第二步：在服务器终端安装运行环境
 
