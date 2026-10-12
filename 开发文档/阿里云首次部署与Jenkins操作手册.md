@@ -1,6 +1,6 @@
 # 阿里云首次部署与 Jenkins 操作手册
 
-> 最近更新：2026-09-30
+> 最近更新：2026-10-12
 > 目标：让项目负责人按本手册完成阿里云 ECS、同机 MySQL、域名、Jenkins 和第一次后端/管理端发布。
 > 安全规则：任何数据库密码、微信 AppSecret、JWT 密钥、私钥都只写在服务器或 Jenkins Credentials，不写入 GitHub 和本文件。
 
@@ -19,7 +19,7 @@
 - Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.ruannengliang.top/api/v1`。
 
-项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。正式主域名已确定为 `ruannengliang.top`，备案控制台当前显示管局审核中，仍需在订单详情确认包含该域名并等待审核完成。任何 AppSecret、生产密钥或备案个人资料都不得写入 GitHub 和本文档。
+项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。`ruannengliang.top` 的 ICP 已通过，公安联网备案正在审核；根域名和 API 域名 DNS 已完成，两张 TLS 证书已签发但尚未部署到 Nginx。任何 AppSecret、生产密钥、证书私钥或备案个人资料都不得写入 GitHub 和本文档。
 
 正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。Jenkins 第 8 次构建已完成第一次业务发布，公网 IP 下的后端健康接口、管理端和 Jenkins 入口均已验证；当前进入正式域名 HTTPS 和小程序重新发布阶段。
 
@@ -52,7 +52,7 @@
   -> 127.0.0.1:3306 / soft_energy_prod
 
 管理员浏览器
-  -> HTTPS 443 / https://admin.ruannengliang.top
+  -> HTTPS 443 / https://ruannengliang.top
   -> Nginx 静态文件 + /api 反向代理
 ```
 
@@ -90,14 +90,14 @@ Jenkins 只监听 `127.0.0.1:8080`。初始化阶段由 Nginx 暂时代理为 `h
 
 ### 4.3 域名与证书
 
-在已备案主域名下准备两个子域名并解析到 `123.56.169.70`：
+已将管理系统根域名和 API 子域名解析到 `123.56.169.70`：
 
 ```text
-admin.ruannengliang.top  -> 123.56.169.70
-api.ruannengliang.top    -> 123.56.169.70（A 记录已创建并经公共 DNS 验证）
+ruannengliang.top      -> 123.56.169.70（主机记录 `@`）
+api.ruannengliang.top  -> 123.56.169.70
 ```
 
-申请对应 HTTPS 证书。微信公众平台的 `request` 合法域名填写 `https://api.ruannengliang.top`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
+2026-10-12 已分别签发根域名与 API 域名的 Nginx 证书，证书页面显示有效期至 2027-01-10。证书包必须从开发电脑的非仓库目录安全上传到服务器受限目录，私钥权限设为仅 root 可读。微信公众平台的 `request` 合法域名填写 `https://api.ruannengliang.top`，不能带 `/api/v1`，不能使用 IP 或 HTTP。
 
 ## 5. 第二步：在服务器终端安装运行环境
 
@@ -266,11 +266,13 @@ sudo systemctl restart jenkins
 
 ## 9. 第六步：配置 Nginx 与 HTTPS
 
-把仓库中的 `deploy/nginx/soft-energy.conf` 复制为服务器配置前，必须替换：
+把仓库中的 `deploy/nginx/soft-energy.conf` 复制为服务器配置前，必须按当前实际入口替换：
 
-- `admin.example.com`；
-- `api.example.com`；
+- `admin.example.com` -> `ruannengliang.top`；
+- `api.example.com` -> `api.ruannengliang.top`；
 - 两套证书 `.pem` 和 `.key` 路径。
+
+安装前先备份当前仍在使用的 `/etc/nginx/conf.d/jenkins-ip.conf`，并确保新配置保留 Jenkins 入口；不得直接用模板覆盖现有配置。证书私钥目录和 `.key` 文件只允许 root 读取，部署脚本和终端输出不得打印私钥正文。
 
 宝塔 Nginx 常用站点配置目录是 `/www/server/panel/vhost/nginx/`；系统 Nginx 常用 `/etc/nginx/conf.d/`。以 `nginx -t` 输出的实际主配置为准，不要同时安装两份重复配置。
 
@@ -347,7 +349,7 @@ Jenkins 第一次读取带参数的 Jenkinsfile 时，当前这一轮构建不�
 sudo systemctl status soft-energy-api --no-pager
 curl -fsS http://127.0.0.1:8081/api/v1/health
 curl -fsS http://127.0.0.1:18080/api/v1/health
-curl -I https://admin.ruannengliang.top/
+curl -I https://ruannengliang.top/
 curl -fsS https://api.ruannengliang.top/api/v1/health
 sudo journalctl -u soft-energy-api -n 100 --no-pager
 ```
