@@ -369,7 +369,7 @@ const PRODUCTION_API_BASE_URL = 'https://api.ruannengliang.top/api/v1'
 同时完成：
 
 1. 确认 `miniapp/project.config.json` 中现有正式 AppID 与微信公众平台一致；
-2. 微信公众平台配置 `request` 合法域名；
+2. 微信公众平台配置 `request` 合法域名 `https://api.ruannengliang.top`；（已完成）
 3. 服务器 `WECHAT_APP_ID` 和 `WECHAT_APP_SECRET` 与小程序一致；
 4. 补齐运营主体、隐私联系人、地址和备案号；
 5. 本地执行 `cd miniapp && pnpm verify:release`；
