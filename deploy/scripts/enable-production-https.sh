@@ -251,21 +251,26 @@ if [[ "${jenkins_http_code}" != '200' ]]; then
 fi
 echo 'Jenkins HTTPS：200。'
 
-if ! redirect_result="$(
-  curl --noproxy '*' -sS \
-    --resolve 'ruannengliang.top:80:127.0.0.1' \
-    -o /dev/null \
-    -w '%{http_code}|%{redirect_url}' \
-    http://ruannengliang.top/
-)"; then
-  echo '管理端 HTTP 跳转检查请求失败。' >&2
+redirect_ready=false
+redirect_result='未执行'
+for attempt in $(seq 1 30); do
+  if redirect_result="$(
+    curl --noproxy '*' -sS \
+      --resolve 'ruannengliang.top:80:127.0.0.1' \
+      -o /dev/null \
+      -w '%{http_code}|%{redirect_url}' \
+      http://ruannengliang.top/
+  )" && [[ "${redirect_result}" == '301|https://ruannengliang.top/' ]]; then
+    redirect_ready=true
+    printf '管理端 HTTP：301 跳转已就绪（第 %s 次检查）。\n' "${attempt}"
+    break
+  fi
+  sleep 0.5
+done
+if [[ "${redirect_ready}" != 'true' ]]; then
+  echo "Nginx reload 后 15 秒内管理端 HTTP 跳转仍异常：${redirect_result}" >&2
   exit 1
 fi
-if [[ "${redirect_result}" != '301|https://ruannengliang.top/' ]]; then
-  echo "管理端 HTTP 跳转异常：${redirect_result}" >&2
-  exit 1
-fi
-echo '管理端 HTTP：301 跳转到正式 HTTPS 地址。'
 
 COMPLETED=true
 printf '\nHTTPS 切换完成。\n'
