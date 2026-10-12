@@ -195,31 +195,77 @@ fi
 
 printf '\n[7/7] 验证管理端、API、Jenkins 和 HTTP 跳转\n'
 
-curl -fsS \
-  --resolve 'ruannengliang.top:443:127.0.0.1' \
-  https://ruannengliang.top/ \
-  -o "${TEMP_DIR}/admin.html"
-grep -Eq '<div[^>]+id="app"' "${TEMP_DIR}/admin.html"
+if ! admin_http_code="$(
+  curl --noproxy '*' -sS \
+    --resolve 'ruannengliang.top:443:127.0.0.1' \
+    -o "${TEMP_DIR}/admin.html" \
+    -w '%{http_code}' \
+    https://ruannengliang.top/
+)"; then
+  echo '管理端 HTTPS 请求失败。' >&2
+  exit 1
+fi
+if [[ "${admin_http_code}" != '200' ]]; then
+  echo "管理端 HTTPS 状态异常：${admin_http_code}" >&2
+  exit 1
+fi
+if ! grep -Eq '<div[^>]+id="app"' "${TEMP_DIR}/admin.html"; then
+  echo '管理端 HTTPS 返回 200，但页面中没有 Vue 挂载点。' >&2
+  exit 1
+fi
+echo '管理端 HTTPS：200，Vue 挂载点存在。'
 
-curl -fsS \
-  --resolve 'api.ruannengliang.top:443:127.0.0.1' \
-  https://api.ruannengliang.top/api/v1/health \
-  -o "${TEMP_DIR}/health.json"
-grep -Eq '"status"[[:space:]]*:[[:space:]]*"UP"' "${TEMP_DIR}/health.json"
+if ! api_http_code="$(
+  curl --noproxy '*' -sS \
+    --resolve 'api.ruannengliang.top:443:127.0.0.1' \
+    -o "${TEMP_DIR}/health.json" \
+    -w '%{http_code}' \
+    https://api.ruannengliang.top/api/v1/health
+)"; then
+  echo 'API HTTPS 健康检查请求失败。' >&2
+  exit 1
+fi
+if [[ "${api_http_code}" != '200' ]]; then
+  echo "API HTTPS 健康检查状态异常：${api_http_code}" >&2
+  exit 1
+fi
+if ! grep -Eq '"status"[[:space:]]*:[[:space:]]*"UP"' "${TEMP_DIR}/health.json"; then
+  echo 'API HTTPS 返回 200，但业务健康状态不是 UP。' >&2
+  exit 1
+fi
+echo 'API HTTPS：200，业务状态 UP。'
 
-curl -fsS \
-  --resolve 'ruannengliang.top:443:127.0.0.1' \
-  https://ruannengliang.top/jenkins/login \
-  -o /dev/null
+if ! jenkins_http_code="$(
+  curl --noproxy '*' -sS \
+    --resolve 'ruannengliang.top:443:127.0.0.1' \
+    -o /dev/null \
+    -w '%{http_code}' \
+    https://ruannengliang.top/jenkins/login
+)"; then
+  echo 'Jenkins HTTPS 登录页请求失败。' >&2
+  exit 1
+fi
+if [[ "${jenkins_http_code}" != '200' ]]; then
+  echo "Jenkins HTTPS 登录页状态异常：${jenkins_http_code}" >&2
+  exit 1
+fi
+echo 'Jenkins HTTPS：200。'
 
-redirect_result="$(
-  curl -sS \
+if ! redirect_result="$(
+  curl --noproxy '*' -sS \
     --resolve 'ruannengliang.top:80:127.0.0.1' \
     -o /dev/null \
     -w '%{http_code}|%{redirect_url}' \
     http://ruannengliang.top/
-)"
-test "${redirect_result}" = '301|https://ruannengliang.top/'
+)"; then
+  echo '管理端 HTTP 跳转检查请求失败。' >&2
+  exit 1
+fi
+if [[ "${redirect_result}" != '301|https://ruannengliang.top/' ]]; then
+  echo "管理端 HTTP 跳转异常：${redirect_result}" >&2
+  exit 1
+fi
+echo '管理端 HTTP：301 跳转到正式 HTTPS 地址。'
 
 COMPLETED=true
 printf '\nHTTPS 切换完成。\n'
