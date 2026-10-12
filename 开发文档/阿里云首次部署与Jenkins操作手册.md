@@ -358,13 +358,13 @@ sudo journalctl -u soft-energy-api -n 100 --no-pager
 
 ## 13. 小程序连接线上后端
 
-`api.ruannengliang.top` 完成 ICP 备案、TLS 和微信合法域名配置后，把 `miniapp/miniprogram/config/runtime.ts` 中：
+`api.ruannengliang.top` 已完成 ICP 备案、TLS 和公网健康验证，`miniapp/miniprogram/config/runtime.ts` 已配置：
 
 ```ts
-const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
+const PRODUCTION_API_BASE_URL = 'https://api.ruannengliang.top/api/v1'
 ```
 
-替换为真实域名。不要填写 `:8081`，也不要填写数据库地址。小程序只访问 Nginx 的 HTTPS 443。
+不要添加 `:8081`，也不要填写数据库地址。小程序只访问 Nginx 的 HTTPS 443。修改仓库代码不会自动更新手机中的已发布版本，仍需完成以下事项并重新上传发布。
 
 同时完成：
 
@@ -379,8 +379,7 @@ const PRODUCTION_API_BASE_URL = 'https://api.example.com/api/v1'
 
 ## 14. 当前还需要项目负责人提供
 
-- `ruannengliang.top` 的实名认证与 ICP 备案状态；
-- 运营主体、隐私联系人、联系地址和小程序备案号；
+- 运营主体全称、隐私联系人、联系电话或邮箱、联系地址和 APP 备案号；
 
 ## 15. 官方依据
 
