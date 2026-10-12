@@ -19,7 +19,7 @@
 - Spring Boot 通过 `127.0.0.1:3306` 连接同机 MySQL，Flyway 自动执行 V1—V4 迁移；
 - 小程序不会也不能直接连接 MySQL，只调用 `https://api.ruannengliang.top/api/v1`。
 
-项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。`ruannengliang.top` 的 ICP 已通过，公安联网备案正在审核；根域名和 API 域名 DNS 已完成，两张 TLS 证书已签发但尚未部署到 Nginx。任何 AppSecret、生产密钥、证书私钥或备案个人资料都不得写入 GitHub 和本文档。
+项目已配置格式有效的正式 AppID，正式 AppSecret 已仅写入服务器受限配置文件。正式 GitHub 仓库所有者/登录账号为 `deming1319-bot`，公开仓库和首次推送已经完成；该账号与 Jenkins 管理员、阿里云账号相互独立。`ruannengliang.top` 的 ICP 已通过，公安联网备案正在审核；根域名和 API 域名 DNS 已完成，两张 TLS 证书已上传服务器受限目录并校验通过，但尚未安装到 Nginx。任何 AppSecret、生产密钥、证书私钥或备案个人资料都不得写入 GitHub 和本文档。
 
 正式发布链路已经确定为：GitHub `main` 分支 -> 阿里云 ECS 上的 Jenkins -> 自动测试与构建 -> systemd 发布后端 -> Nginx 发布管理端 -> 同机 MySQL。Jenkins 第 8 次构建已完成第一次业务发布，公网 IP 下的后端健康接口、管理端和 Jenkins 入口均已验证；当前进入正式域名 HTTPS 和小程序重新发布阶段。
 
