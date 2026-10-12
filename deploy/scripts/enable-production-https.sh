@@ -6,7 +6,7 @@ if [[ "${EUID}" -ne 0 ]]; then
   exit 1
 fi
 
-for command_name in awk curl grep install openssl rm rmdir sha256sum ss systemctl unzip wc; do
+for command_name in awk curl grep install journalctl openssl rm rmdir seq sha256sum sleep ss systemctl unzip wc; do
   if ! command -v "${command_name}" >/dev/null 2>&1; then
     echo "缺少命令：${command_name}。" >&2
     exit 1
@@ -177,6 +177,22 @@ printf '\n[6/7] 校验并重新加载 Nginx\n'
 systemctl reload nginx
 systemctl is-active --quiet nginx
 
+https_ready=false
+for attempt in $(seq 1 30); do
+  if ss -H -lnt | awk '{print $4}' | grep -Eq '(:|\])443$'; then
+    https_ready=true
+    printf '443 监听已就绪（第 %s 次检查）。\n' "${attempt}"
+    break
+  fi
+  sleep 0.5
+done
+
+if [[ "${https_ready}" != 'true' ]]; then
+  echo 'Nginx reload 后 15 秒内未监听 443，输出最近日志并触发回滚。' >&2
+  journalctl -u nginx -n 40 --no-pager >&2 || true
+  exit 1
+fi
+
 printf '\n[7/7] 验证管理端、API、Jenkins 和 HTTP 跳转\n'
 
 curl -fsS \
@@ -204,8 +220,6 @@ redirect_result="$(
     http://ruannengliang.top/
 )"
 test "${redirect_result}" = '301|https://ruannengliang.top/'
-
-ss -lnt | grep -Eq '[:.]443[[:space:]]'
 
 COMPLETED=true
 printf '\nHTTPS 切换完成。\n'
