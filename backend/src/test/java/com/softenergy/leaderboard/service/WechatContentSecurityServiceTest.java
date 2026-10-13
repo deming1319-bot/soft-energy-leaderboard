@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -34,8 +35,9 @@ class WechatContentSecurityServiceTest {
                         "https://api.weixin.qq.com/wxa/msg_sec_check?access_token=expired-token"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(request -> assertTrue(request.getHeaders().getContentLength() > 0))
                 .andExpect(content().json("""
-                        {"content":"周涛","version":2,"scene":2,"openid":"openid-1"}
+                        {"content":"周涛","version":2,"scene":1,"openid":"openid-1"}
                         """))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST)
                         .contentType(MediaType.TEXT_PLAIN)

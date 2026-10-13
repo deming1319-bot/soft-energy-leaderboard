@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -90,16 +91,19 @@ public class WechatContentSecurityService {
     }
 
     private Map<String, Object> requestTextCheck(String token, String openid, String content) {
+        byte[] requestBody = responseParser.serialize(Map.of(
+                "content", content,
+                "version", 2,
+                "scene", 1,
+                "openid", openid));
         String responseBody = restClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https").host("api.weixin.qq.com").path("/wxa/msg_sec_check")
                         .queryParam("access_token", token)
                         .build())
-                .body(Map.of(
-                        "content", content,
-                        "version", 2,
-                        "scene", 2,
-                        "openid", openid))
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentLength(requestBody.length)
+                .body(requestBody)
                 .exchange((request, response) -> response.bodyTo(String.class));
         return responseParser.parse(responseBody);
     }

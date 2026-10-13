@@ -26,4 +26,12 @@ public class WechatApiResponseParser {
             throw new RestClientException("微信接口返回了无法解析的响应", exception);
         }
     }
+
+    public byte[] serialize(Object requestBody) {
+        try {
+            return objectMapper.writeValueAsBytes(requestBody);
+        } catch (JsonProcessingException exception) {
+            throw new RestClientException("微信接口请求无法序列化", exception);
+        }
+    }
 }
