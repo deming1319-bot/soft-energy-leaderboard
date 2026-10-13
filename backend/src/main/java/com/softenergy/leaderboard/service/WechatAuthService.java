@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -23,17 +24,20 @@ public class WechatAuthService {
     private final SoftEnergyProperties properties;
     private final JwtService jwtService;
     private final PhoneCryptoService phoneCryptoService;
+    private final WechatApiResponseParser responseParser;
     private final RestClient restClient = RestClient.create();
 
     public WechatAuthService(
             MiniappUserRepository repository,
             SoftEnergyProperties properties,
             JwtService jwtService,
-            PhoneCryptoService phoneCryptoService) {
+            PhoneCryptoService phoneCryptoService,
+            WechatApiResponseParser responseParser) {
         this.repository = repository;
         this.properties = properties;
         this.jwtService = jwtService;
         this.phoneCryptoService = phoneCryptoService;
+        this.responseParser = responseParser;
     }
 
     @Transactional
@@ -99,17 +103,22 @@ public class WechatAuthService {
                 || properties.getWechat().getAppSecret() == null || properties.getWechat().getAppSecret().isBlank()) {
             throw new IllegalStateException("生产环境未配置微信 AppID/AppSecret");
         }
-        @SuppressWarnings("unchecked")
-        Map<String, Object> response = restClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https").host("api.weixin.qq.com").path("/sns/jscode2session")
-                        .queryParam("appid", properties.getWechat().getAppId())
-                        .queryParam("secret", properties.getWechat().getAppSecret())
-                        .queryParam("js_code", request.code())
-                        .queryParam("grant_type", "authorization_code")
-                        .build())
-                .retrieve()
-                .body(Map.class);
+        Map<String, Object> response;
+        try {
+            String responseBody = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("https").host("api.weixin.qq.com").path("/sns/jscode2session")
+                            .queryParam("appid", properties.getWechat().getAppId())
+                            .queryParam("secret", properties.getWechat().getAppSecret())
+                            .queryParam("js_code", request.code())
+                            .queryParam("grant_type", "authorization_code")
+                            .build())
+                    .retrieve()
+                    .body(String.class);
+            response = responseParser.parse(responseBody);
+        } catch (RestClientException exception) {
+            throw new BusinessException("WECHAT_LOGIN_FAILED", "微信登录暂时不可用", HttpStatus.BAD_GATEWAY);
+        }
         if (response == null || response.get("openid") == null) {
             throw new BusinessException("WECHAT_LOGIN_FAILED", "微信登录暂时不可用", HttpStatus.BAD_GATEWAY);
         }

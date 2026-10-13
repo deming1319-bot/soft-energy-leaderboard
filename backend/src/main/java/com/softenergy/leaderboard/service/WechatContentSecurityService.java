@@ -15,11 +15,15 @@ import java.util.Map;
 @Service
 public class WechatContentSecurityService {
     private final SoftEnergyProperties properties;
+    private final WechatApiResponseParser responseParser;
     private final RestClient restClient;
     private volatile CachedToken cachedToken;
 
-    public WechatContentSecurityService(SoftEnergyProperties properties) {
+    public WechatContentSecurityService(
+            SoftEnergyProperties properties,
+            WechatApiResponseParser responseParser) {
         this.properties = properties;
+        this.responseParser = responseParser;
         var requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofSeconds(5));
         requestFactory.setReadTimeout(Duration.ofSeconds(8));
@@ -45,8 +49,7 @@ public class WechatContentSecurityService {
                     "CONTENT_SECURITY_UNAVAILABLE", "内容安全检测暂时不可用，请稍后重试", HttpStatus.SERVICE_UNAVAILABLE);
         }
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> response = restClient.post()
+        String responseBody = restClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https").host("api.weixin.qq.com").path("/wxa/msg_sec_check")
                         .queryParam("access_token", accessToken())
@@ -57,7 +60,8 @@ public class WechatContentSecurityService {
                         "scene", 2,
                         "openid", openid))
                 .retrieve()
-                .body(Map.class);
+                .body(String.class);
+        Map<String, Object> response = responseParser.parse(responseBody);
 
         if (response == null || number(response.get("errcode")) != 0) {
             throw new BusinessException(
@@ -89,8 +93,7 @@ public class WechatContentSecurityService {
             throw new BusinessException(
                     "CONTENT_SECURITY_UNAVAILABLE", "内容安全检测尚未配置", HttpStatus.SERVICE_UNAVAILABLE);
         }
-        @SuppressWarnings("unchecked")
-        Map<String, Object> response = restClient.get()
+        String responseBody = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https").host("api.weixin.qq.com").path("/cgi-bin/token")
                         .queryParam("grant_type", "client_credential")
@@ -98,7 +101,8 @@ public class WechatContentSecurityService {
                         .queryParam("secret", appSecret)
                         .build())
                 .retrieve()
-                .body(Map.class);
+                .body(String.class);
+        Map<String, Object> response = responseParser.parse(responseBody);
         if (response == null || response.get("access_token") == null) {
             throw new BusinessException(
                     "CONTENT_SECURITY_UNAVAILABLE", "内容安全检测暂时不可用，请稍后重试", HttpStatus.SERVICE_UNAVAILABLE);
