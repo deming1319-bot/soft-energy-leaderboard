@@ -1,6 +1,6 @@
 # 阿里云首次部署与 Jenkins 操作手册
 
-> 最近更新：2026-10-12
+> 最近更新：2026-10-13
 > 目标：让项目负责人按本手册完成阿里云 ECS、同机 MySQL、域名、Jenkins 和第一次后端/管理端发布。
 > 安全规则：任何数据库密码、微信 AppSecret、JWT 密钥、私钥都只写在服务器或 Jenkins Credentials，不写入 GitHub 和本文件。
 
@@ -371,15 +371,17 @@ const PRODUCTION_API_BASE_URL = 'https://api.ruannengliang.top/api/v1'
 1. 确认 `miniapp/project.config.json` 中现有正式 AppID 与微信公众平台一致；
 2. 微信公众平台配置 `request` 合法域名 `https://api.ruannengliang.top`；（已完成）
 3. 服务器 `WECHAT_APP_ID` 和 `WECHAT_APP_SECRET` 与小程序一致；
-4. 补齐运营主体、隐私联系人、地址和备案号；
-5. 本地执行 `cd miniapp && pnpm verify:release`；
-6. 全部通过后，Jenkins 才勾选 `RUN_MINIAPP_RELEASE_GATE=true`。
+4. 运营主体、隐私联系人、公开邮箱、地址和备案号已补齐；
+5. 本地执行 `cd miniapp && pnpm verify:release`；（2026-10-13 已通过）
+6. 完成微信平台隐私保护指引、用户生成内容场景声明和真机验收后，Jenkins 才勾选 `RUN_MINIAPP_RELEASE_GATE=true`。
 
 小程序上传体验版、提交审核和正式发布仍需要在微信开发者工具/微信公众平台人工确认，不能由 Jenkins 无确认地直接正式发布。
 
-## 14. 当前还需要项目负责人提供
+## 14. 当前还需要项目负责人完成
 
-- 运营主体全称、隐私联系人、联系电话或邮箱、联系地址和 APP 备案号；
+- 在微信公众平台完成隐私保护指引、用户生成内容场景声明和服务类目/资质确认；
+- 使用 iOS、Android 和两个不同微信账号完成体验版真机验收；
+- 确认冻结候选版本后，在微信开发者工具上传并提交审核发布。
 
 ## 15. 官方依据
 
