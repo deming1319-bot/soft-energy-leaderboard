@@ -100,8 +100,7 @@ public class WechatContentSecurityService {
                         "version", 2,
                         "scene", 2,
                         "openid", openid))
-                .retrieve()
-                .body(String.class);
+                .exchange((request, response) -> response.bodyTo(String.class));
         return responseParser.parse(responseBody);
     }
 
@@ -143,8 +142,7 @@ public class WechatContentSecurityService {
                         .queryParam("appid", appId)
                         .queryParam("secret", appSecret)
                         .build())
-                .retrieve()
-                .body(String.class);
+                .exchange((request, response) -> response.bodyTo(String.class));
         Map<String, Object> response = responseParser.parse(responseBody);
         if (response.get("access_token") == null) {
             logWechatFailure("access_token", response);

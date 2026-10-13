@@ -5,6 +5,7 @@ import com.softenergy.leaderboard.api.BusinessException;
 import com.softenergy.leaderboard.config.SoftEnergyProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseCreator;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class WechatContentSecurityServiceTest {
@@ -35,7 +37,9 @@ class WechatContentSecurityServiceTest {
                 .andExpect(content().json("""
                         {"content":"周涛","version":2,"scene":2,"openid":"openid-1"}
                         """))
-                .andRespond(textResponse("{\"errcode\":40014,\"errmsg\":\"invalid access_token\"}"));
+                .andRespond(withStatus(HttpStatus.BAD_REQUEST)
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body("{\"errcode\":40014,\"errmsg\":\"invalid access_token\"}"));
         context.server.expect(once(), requestTo(TOKEN_URL))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(textResponse("{\"access_token\":\"fresh-token\",\"expires_in\":7200}"));
