@@ -22,7 +22,7 @@ Page({
   },
   async onLoad() {
     const app = getApp<IAppOption>()
-    if (app.globalData.environment !== 'develop') {
+    if (!app.globalData.localDevelopment) {
       this.setData({ available: false })
       return
     }

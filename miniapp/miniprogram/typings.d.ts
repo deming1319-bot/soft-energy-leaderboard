@@ -2,6 +2,7 @@ interface IAppOption {
   globalData: {
     apiBaseUrl: string
     environment: 'develop' | 'trial' | 'release'
+    localDevelopment: boolean
     runtimeReady: boolean
     networkConnected: boolean
     user: CurrentUser | null

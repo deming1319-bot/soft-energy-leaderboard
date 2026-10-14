@@ -53,7 +53,7 @@ Page({
   handleButtonTap() {
     if (!this.data.checked || this.data.entering) return
     // 未配置平台隐私指引的游客 AppID 不一定触发 agreePrivacyAuthorization 事件，开发环境使用点击回退。
-    if (!this.data.platformAuthorizationRequired || getApp<IAppOption>().globalData.environment === 'develop') void this.enter(true)
+    if (!this.data.platformAuthorizationRequired || getApp<IAppOption>().globalData.localDevelopment) void this.enter(true)
   },
   async enter(saveAgreement: boolean) {
     if (this.data.entering) return

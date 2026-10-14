@@ -41,7 +41,7 @@ export function ensureLogin(force = false): Promise<CurrentUser> {
             privacyVersion: consent.privacyVersion,
             termsVersion: consent.termsVersion,
           }
-          if (app.globalData.environment === 'develop') loginData.deviceId = deviceId()
+          if (app.globalData.localDevelopment) loginData.deviceId = deviceId()
           const response = await request<{ accessToken: string; currentUser: CurrentUser }>({
             url: '/miniapp/auth/login',
             method: 'POST',

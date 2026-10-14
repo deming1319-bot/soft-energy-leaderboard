@@ -7,6 +7,15 @@ export interface RuntimeConfig {
   environment: MiniappEnvironment
   apiBaseUrl: string
   configured: boolean
+  localDevelopment: boolean
+}
+
+function isDevTools(): boolean {
+  try {
+    return wx.getDeviceInfo().platform === 'devtools'
+  } catch {
+    return false
+  }
 }
 
 export function resolveRuntimeConfig(): RuntimeConfig {
@@ -16,10 +25,13 @@ export function resolveRuntimeConfig(): RuntimeConfig {
     if (value === 'trial' || value === 'release') environment = value
   } catch { /* 游客 AppID 与单元测试使用开发环境 */ }
 
-  const apiBaseUrl = environment === 'develop' ? DEVELOPMENT_API_BASE_URL : PRODUCTION_API_BASE_URL
+  // 待审开发包在真实审核设备上也可能返回 develop；只有开发者工具模拟器允许访问本机 API。
+  const localDevelopment = environment === 'develop' && isDevTools()
+  const apiBaseUrl = localDevelopment ? DEVELOPMENT_API_BASE_URL : PRODUCTION_API_BASE_URL
   return {
     environment,
     apiBaseUrl,
-    configured: environment === 'develop' || !apiBaseUrl.includes('example.com'),
+    configured: !apiBaseUrl.includes('example.com'),
+    localDevelopment,
   }
 }

@@ -23,7 +23,7 @@ Page({
   refreshTestState() {
     const identity = currentTestIdentity()
     this.setData({
-      showTestCenter: getApp<IAppOption>().globalData.environment === 'develop',
+      showTestCenter: getApp<IAppOption>().globalData.localDevelopment,
       testIdentityName: identity?.nickname || '',
     })
   },

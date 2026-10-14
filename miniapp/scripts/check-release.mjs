@@ -73,6 +73,8 @@ const legal = await read('miniprogram/config/legal.ts')
 const welcome = await read('miniprogram/pages/welcome/index.wxml')
 const welcomeLogic = await read('miniprogram/pages/welcome/index.ts')
 const home = await read('miniprogram/pages/home/index.wxml')
+const appLogic = await read('miniprogram/app.ts')
+const authLogic = await read('miniprogram/services/auth.ts')
 
 if (!/^wx[0-9a-f]{16}$/i.test(project.appid || '')) issues.push('project.config.json 必须填写格式正确的正式 AppID')
 if (project.setting?.urlCheck !== true) issues.push('project.config.json 必须开启 urlCheck')
@@ -97,6 +99,12 @@ if (!productionApi) {
   } catch {
     issues.push('正式 API 地址格式不正确')
   }
+}
+if (!runtime.includes("platform === 'devtools'") || !runtime.includes('localDevelopment')) {
+  issues.push('本机 API 必须同时受开发者工具平台判定保护，不能仅依赖 envVersion=develop')
+}
+if (!appLogic.includes('runtime.localDevelopment') || !authLogic.includes('globalData.localDevelopment')) {
+  issues.push('模拟用户和设备标识只能在开发者工具本机环境启用')
 }
 
 const complianceFields = {

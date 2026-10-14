@@ -14,14 +14,15 @@ App<IAppOption>({
   globalData: {
     apiBaseUrl: runtime.apiBaseUrl,
     environment: runtime.environment,
+    localDevelopment: runtime.localDevelopment,
     runtimeReady: runtime.configured,
     networkConnected: true,
-    user: runtime.environment === 'develop' ? restoredTestUser() : null,
+    user: runtime.localDevelopment ? restoredTestUser() : null,
     testAdminToken: null,
     testAdminExpiresAt: null,
   },
   onLaunch() {
-    if (runtime.environment !== 'develop' && wx.getStorageSync(TEST_SESSION_KEY)) {
+    if (!runtime.localDevelopment && wx.getStorageSync(TEST_SESSION_KEY)) {
       wx.removeStorageSync(TEST_SESSION_KEY)
       wx.removeStorageSync(USER_TOKEN_KEY)
     }
