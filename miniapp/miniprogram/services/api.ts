@@ -1,7 +1,9 @@
 import type { ActivityDetail, ActivitySummary, CreateReportPayload, Leaderboard, Profile, ReportItem, SubmissionResult } from '../types/index'
-import { request } from './request'
+import { publicRequest, request } from './request'
 
 export const activityApi = {
+  publicList: () => publicRequest<ActivitySummary[]>({ url: '/miniapp/activities', method: 'GET' }),
+  publicDetail: (id: string) => publicRequest<ActivityDetail>({ url: `/miniapp/activities/${id}`, method: 'GET' }),
   list: () => request<ActivitySummary[]>({ url: '/miniapp/activities', method: 'GET' }),
   detail: (id: string) => request<ActivityDetail>({ url: `/miniapp/activities/${id}`, method: 'GET' }),
   submit: (id: string, answer: string, clientRequestId: string) => request<SubmissionResult>({ url: `/miniapp/activities/${id}/submissions`, method: 'POST', data: { answer, clientRequestId } }),

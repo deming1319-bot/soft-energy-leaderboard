@@ -1,11 +1,12 @@
 import { profileApi } from '../../services/api'
 import { ensureLogin, updateCurrentUser } from '../../services/auth'
+import { safePagePath } from '../../utils/navigation'
 
 Page({
-  data: { first: false, loading: true, saving: false, nickname: '', count: 0, error: '' },
+  data: { first: false, loading: true, saving: false, nickname: '', count: 0, error: '', redirect: '/pages/home/index' },
   async onLoad(query: Record<string, string | undefined>) {
     const first = query.first === '1'
-    this.setData({ first })
+    this.setData({ first, redirect: safePagePath(query.redirect) })
     try {
       const user = await ensureLogin()
       const nickname = user.profileComplete ? user.displayName : ''
@@ -33,7 +34,7 @@ Page({
       const current = getApp<IAppOption>().globalData.user
       if (current) updateCurrentUser({ ...current, displayName: profile.nickname, profileComplete: true })
       wx.showToast({ title: '修习名已保存', icon: 'success' })
-      if (this.data.first) wx.reLaunch({ url: '/pages/home/index' })
+      if (this.data.first) wx.reLaunch({ url: this.data.redirect })
       else wx.navigateBack()
     } catch (error) {
       this.setData({ error: error instanceof Error ? error.message : '保存失败，请稍后重试' })

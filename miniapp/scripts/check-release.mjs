@@ -73,6 +73,8 @@ const legal = await read('miniprogram/config/legal.ts')
 const welcome = await read('miniprogram/pages/welcome/index.wxml')
 const welcomeLogic = await read('miniprogram/pages/welcome/index.ts')
 const home = await read('miniprogram/pages/home/index.wxml')
+const homeLogic = await read('miniprogram/pages/home/index.ts')
+const activity = await read('miniprogram/pages/activity/index.wxml')
 const appLogic = await read('miniprogram/app.ts')
 const authLogic = await read('miniprogram/services/auth.ts')
 
@@ -82,6 +84,7 @@ if (project.setting?.packNpmManually !== true || !Array.isArray(project.setting?
   issues.push('project.config.json 未配置微信开发者工具 npm 构建映射')
 }
 if (app.__usePrivacyCheck__ !== true) issues.push('app.json 必须启用 __usePrivacyCheck__')
+if (app.pages?.[0] !== 'pages/home/index') issues.push('小程序首屏必须是可游客浏览的首页，不能先进入登录授权页')
 if (Object.keys(app.usingComponents || {}).some((name) => name.startsWith('t-'))) {
   issues.push('TDesign 组件不应全局注册，请在实际使用页面按需声明')
 }
@@ -120,6 +123,10 @@ for (const [placeholder, label] of Object.entries(complianceFields)) {
 
 if (!welcome.includes('open-type="agreePrivacyAuthorization"')) issues.push('欢迎页缺少微信隐私授权按钮')
 if (!welcomeLogic.includes('wx.getPrivacySetting')) issues.push('欢迎页没有检查微信平台隐私授权状态')
+if (welcomeLogic.includes('void this.enter(false)')) issues.push('欢迎页仍存在未经用户点击就自动登录的逻辑')
+if (homeLogic.includes('ensureLogin')) issues.push('首页不得把登录作为浏览公开题目的前置条件')
+if (!home.includes('公开内容可直接浏览')) issues.push('首页缺少游客可浏览、操作时再登录的明确提示')
+if (!activity.includes('登录后参与作答')) issues.push('题目详情缺少由游客主动发起的登录入口')
 if (!legal.includes('反馈与举报')) issues.push('隐私与用户协议未声明投诉举报处理')
 if (!home.includes('APP 备案号')) issues.push('小程序首页底部没有展示 APP 备案号')
 if (welcome.includes('儒、释、道') || welcome.includes('师门')) issues.push('首版欢迎页仍包含未确认资质的宗教或师门定位')

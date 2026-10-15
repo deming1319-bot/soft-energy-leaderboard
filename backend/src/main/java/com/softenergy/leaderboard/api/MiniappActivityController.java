@@ -24,13 +24,13 @@ public class MiniappActivityController {
 
     @GetMapping
     public ApiResponse<List<ActivityDtos.PublicActivitySummary>> list(@AuthenticationPrincipal Jwt jwt) {
-        return ApiResponse.success(activityService.publicList(jwt.getSubject()));
+        return ApiResponse.success(activityService.publicList(subject(jwt)));
     }
 
     @GetMapping("/{id}")
     public ApiResponse<ActivityDtos.PublicActivityDetail> detail(
             @PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
-        return ApiResponse.success(activityService.publicDetail(id, jwt.getSubject()));
+        return ApiResponse.success(activityService.publicDetail(id, subject(jwt)));
     }
 
     @PostMapping("/{id}/submissions")
@@ -51,6 +51,10 @@ public class MiniappActivityController {
     public ApiResponse<SubmissionDtos.LeaderboardResponse> leaderboard(
             @PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(submissionService.leaderboard(id, jwt.getSubject(), false));
+    }
+
+    private String subject(Jwt jwt) {
+        return jwt == null ? null : jwt.getSubject();
     }
 }
 

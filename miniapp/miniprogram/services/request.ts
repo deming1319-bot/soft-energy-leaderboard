@@ -2,8 +2,9 @@ import type { ApiResponse } from '../types/index'
 
 const TOKEN_KEY = 'soft-energy-user-token'
 const TEST_SESSION_KEY = 'soft-energy-test-session'
+const USER_CACHE_KEY = 'soft-energy-current-user'
 
-export function request<T>(options: WechatMiniprogram.RequestOption): Promise<T> {
+function send<T>(options: WechatMiniprogram.RequestOption, includeToken: boolean): Promise<T> {
   const app = getApp<IAppOption>()
   const token = wx.getStorageSync<string>(TOKEN_KEY)
   return new Promise((resolve, reject) => {
@@ -11,12 +12,13 @@ export function request<T>(options: WechatMiniprogram.RequestOption): Promise<T>
       ...options,
       url: `${app.globalData.apiBaseUrl}${options.url}`,
       timeout: options.timeout || 12000,
-      header: { 'content-type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.header },
+      header: { 'content-type': 'application/json', ...(includeToken && token ? { Authorization: `Bearer ${token}` } : {}), ...options.header },
       success(response) {
         if (response.statusCode >= 200 && response.statusCode < 300) { resolve(response.data.data); return }
         if (response.statusCode === 401) {
           wx.removeStorageSync(TOKEN_KEY)
           wx.removeStorageSync(TEST_SESSION_KEY)
+          wx.removeStorageSync(USER_CACHE_KEY)
           app.globalData.user = null
         }
         reject(new Error(response.data?.message || `请求失败（${response.statusCode}）`))
@@ -29,6 +31,14 @@ export function request<T>(options: WechatMiniprogram.RequestOption): Promise<T>
       },
     })
   })
+}
+
+export function request<T>(options: WechatMiniprogram.RequestOption): Promise<T> {
+  return send<T>(options, true)
+}
+
+export function publicRequest<T>(options: WechatMiniprogram.RequestOption): Promise<T> {
+  return send<T>(options, false)
 }
 
 export function newRequestId(): string {

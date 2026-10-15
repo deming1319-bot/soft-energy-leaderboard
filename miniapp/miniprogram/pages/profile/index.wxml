@@ -1,6 +1,13 @@
 <view class="page-body profile-page safe-top {{largeReading ? 'reading-large' : ''}}">
   <view class="nav"><text class="nav__title">我的修习</text><view class="privacy" bindtap="openPrivacy">隐私与数据</view></view>
   <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" text="正在整理修习档案" /></view>
+  <view wx:elif="{{guest}}" class="guest-profile surface">
+    <view class="guest-profile__seal">我</view>
+    <text>登录后查看个人修习记录</text>
+    <text class="semantic-small">公开题目无需登录即可浏览；仅在参与答题、保存记录或查看个人档案时建立独立账号。</text>
+    <button bindtap="login">登录并继续</button>
+    <view class="guest-profile__links"><text bindtap="openTerms">用户协议</text><text bindtap="openPrivacy">隐私保护指引</text></view>
+  </view>
   <block wx:elif="{{profile}}">
     <view class="profile-card"><view class="profile-pattern"/><view class="profile-main"><view class="avatar">{{initial}}</view><view><text>{{profile.nickname}}</text><text class="semantic-small">修习身份已独立建立</text></view></view><text class="profile-saying">日日精进，不疾而速。</text><view class="profile-stats"><view><text>{{profile.participationCount}}</text><text class="semantic-small">参与</text></view><view class="semantic-icon"/><view><text>{{profile.championCount}}</text><text class="semantic-small">冠军</text></view><view class="semantic-icon"/><view><text>{{profile.runnerUpCount}}</text><text class="semantic-small">亚军</text></view></view></view>
     <view class="privacy-note"><view class="privacy-note__mark">安</view><view class="semantic-copy"><text class="semantic-strong">你的数据独立保存</text><text class="semantic-small">身份、答题和榜单记录均绑定当前微信用户，不会与他人混淆。</text></view></view>

@@ -138,7 +138,7 @@ public class ActivityService {
                         timeState(activity), activity.getStartAt(), activity.getEndAt(),
                         submissionRepository.countByActivityId(activity.getId())
                                 + snapshotRepository.countByActivityId(activity.getId()),
-                        submissionRepository.findFirstByActivityIdAndUserIdOrderByAttemptNoDesc(
+                        userId != null && submissionRepository.findFirstByActivityIdAndUserIdOrderByAttemptNoDesc(
                                 activity.getId(), userId).isPresent()))
                 .toList();
     }
@@ -146,15 +146,20 @@ public class ActivityService {
     @Transactional(readOnly = true)
     public ActivityDtos.PublicActivityDetail publicDetail(String id, String userId) {
         Activity activity = requirePublic(id);
-        int attempts = submissionRepository.findByActivityIdOrderBySubmittedAtAsc(id).stream()
+        int attempts = userId == null ? 0 : submissionRepository.findByActivityIdOrderBySubmittedAtAsc(id).stream()
                 .filter(submission -> submission.getUser().getId().equals(userId))
                 .toList().size();
         boolean submitted = attempts > 0;
-        boolean canSubmit = "ACTIVE".equals(timeState(activity)) && attempts < activity.getMaxAttempts();
+        boolean canSubmit = userId != null
+                && "ACTIVE".equals(timeState(activity))
+                && attempts < activity.getMaxAttempts();
         return new ActivityDtos.PublicActivityDetail(
                 activity.getId(), activity.getTitle(), activity.getSubtitle(), activity.getCategory(),
                 activity.getQuestionText(), activity.getSourceTitle(), activity.getSourceDetail(),
-                timeState(activity), activity.getStartAt(), activity.getEndAt(), activity.getMaxAttempts(),
+                timeState(activity), activity.getStartAt(), activity.getEndAt(),
+                submissionRepository.countByActivityId(activity.getId())
+                        + snapshotRepository.countByActivityId(activity.getId()),
+                activity.getMaxAttempts(),
                 attempts, canSubmit, submitted);
     }
 

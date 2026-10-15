@@ -1,7 +1,8 @@
 import { activityApi } from '../../services/api'
-import { ensureLogin } from '../../services/auth'
+import { hasActiveSession } from '../../services/auth'
 import { complianceDisplay, complianceInfo } from '../../config/compliance'
 import { categoryLabels, formatDateTime, remainingText, timeStateLabels } from '../../utils/format'
+import { loginPageUrl } from '../../utils/navigation'
 import { isLargeReading } from '../../utils/preferences'
 import type { ActivitySummary } from '../../types/index'
 
@@ -13,6 +14,7 @@ Page({
     error: '',
     activities: [] as ActivityCard[],
     greeting: '静心修习',
+    loggedIn: false,
     activeCount: 0,
     largeReading: false,
     operatorName: complianceDisplay(complianceInfo.operatorName),
@@ -24,17 +26,23 @@ Page({
   async loadData() {
     this.setData({ loading: true, error: '' })
     try {
-      const user = await ensureLogin()
-      if (!user.profileComplete) {
-        wx.navigateTo({ url: '/pages/profile-edit/index?first=1' })
-        return
+      let loggedIn = hasActiveSession()
+      let items: ActivitySummary[]
+      try {
+        items = loggedIn ? await activityApi.list() : await activityApi.publicList()
+      } catch (error) {
+        if (!loggedIn) throw error
+        loggedIn = false
+        items = await activityApi.publicList()
       }
-      const items = await activityApi.list()
       const activities = items.map((item) => ({ ...item, categoryLabel: categoryLabels[item.category], stateLabel: timeStateLabels[item.timeState], timeText: `${formatDateTime(item.startAt)} — ${formatDateTime(item.endAt)}`, remaining: item.timeState === 'ACTIVE' ? remainingText(item.endAt) : '' }))
-      this.setData({ activities, activeCount: activities.filter((x) => x.timeState === 'ACTIVE').length, greeting: user.displayName === '修习者' ? '今日静心修习' : `${user.displayName}，安好` })
+      const user = getApp<IAppOption>().globalData.user
+      const greeting = loggedIn && user && user.displayName !== '修习者' ? `${user.displayName}，安好` : '今日静心修习'
+      this.setData({ activities, loggedIn, activeCount: activities.filter((x) => x.timeState === 'ACTIVE').length, greeting })
     } catch (error) { this.setData({ error: error instanceof Error ? error.message : '题目加载失败' }) } finally { this.setData({ loading: false }) }
   },
   retry() { void this.loadData() },
+  login() { wx.navigateTo({ url: loginPageUrl('/pages/home/index') }) },
   openActivity(event: WechatMiniprogram.TouchEvent) { wx.navigateTo({ url: `/pages/activity/index?id=${event.currentTarget.dataset.id}` }) },
   openLeaderboard(event: WechatMiniprogram.TouchEvent) { wx.navigateTo({ url: `/pages/leaderboard/index?id=${event.currentTarget.dataset.id}` }) },
   copyFilingInfo() { wx.setClipboardData({ data: complianceInfo.filingQueryUrl }) },

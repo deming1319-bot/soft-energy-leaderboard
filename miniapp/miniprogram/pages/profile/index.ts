@@ -1,18 +1,25 @@
 import { profileApi } from '../../services/api'
-import { currentTestIdentity, ensureLogin } from '../../services/auth'
+import { currentTestIdentity, hasActiveSession } from '../../services/auth'
 import { formatDateTime, gradeLabels } from '../../utils/format'
+import { loginPageUrl } from '../../utils/navigation'
 import { isLargeReading, setLargeReading } from '../../utils/preferences'
 import type { Profile } from '../../types/index'
 
 Page({
-  data: { loading: true, profile: null as Profile | null, results: [] as Array<Record<string, unknown>>, initial: '修', largeReading: false, showTestCenter: false, testIdentityName: '' },
+  data: { loading: true, guest: true, profile: null as Profile | null, results: [] as Array<Record<string, unknown>>, initial: '修', largeReading: false, showTestCenter: false, testIdentityName: '' },
   async onLoad() { this.refreshTestState(); this.setData({ largeReading: isLargeReading() }); await this.loadData() },
   async onShow() { const tab = this.getTabBar?.(); if (tab) tab.setData({ selected: 1 }); this.refreshTestState(); this.setData({ largeReading: isLargeReading() }); if (!this.data.loading) await this.loadData() },
   async onPullDownRefresh() { await this.loadData(); wx.stopPullDownRefresh() },
   async loadData() {
-    try { await ensureLogin(); const profile = await profileApi.get(); const results = profile.recentResults.map(x => ({ ...x, gradeLabel: gradeLabels[x.grade], timeText: formatDateTime(x.submittedAt), initial: x.activityTitle.slice(0,1) })); this.setData({ profile, results, initial: profile.nickname.slice(0,1) || '修' }) }
-    catch (error) { wx.showToast({ title: error instanceof Error ? error.message : '档案加载失败', icon: 'none' }) } finally { this.setData({ loading: false }) }
+    this.setData({ loading: true })
+    if (!hasActiveSession()) {
+      this.setData({ loading: false, guest: true, profile: null, results: [] })
+      return
+    }
+    try { const profile = await profileApi.get(); const results = profile.recentResults.map(x => ({ ...x, gradeLabel: gradeLabels[x.grade], timeText: formatDateTime(x.submittedAt), initial: x.activityTitle.slice(0,1) })); this.setData({ guest: false, profile, results, initial: profile.nickname.slice(0,1) || '修' }) }
+    catch (error) { this.setData({ guest: !hasActiveSession(), profile: null, results: [] }); wx.showToast({ title: error instanceof Error ? error.message : '档案加载失败', icon: 'none' }) } finally { this.setData({ loading: false }) }
   },
+  login() { wx.navigateTo({ url: loginPageUrl('/pages/profile/index') }) },
   openResult(event: WechatMiniprogram.TouchEvent) { wx.navigateTo({ url: `/pages/result/index?id=${event.currentTarget.dataset.id}` }) },
   openPrivacy() { wx.navigateTo({ url: '/pages/privacy/index' }) },
   editProfile() { wx.navigateTo({ url: '/pages/profile-edit/index' }) },

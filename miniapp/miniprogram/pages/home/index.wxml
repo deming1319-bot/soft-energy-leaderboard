@@ -9,6 +9,11 @@
     <view class="hero__status"><text>{{activeCount}}</text><text class="semantic-small">题进行中</text></view>
   </view>
 
+  <view wx:if="{{!loggedIn}}" class="guest-notice surface">
+    <view><text>公开内容可直接浏览</text><text class="semantic-small">无需手机号、头像或昵称授权；参与答题时再登录。</text></view>
+    <button bindtap="login">登录并参与</button>
+  </view>
+
   <view class="section-head"><view><text class="eyebrow">TODAY'S PRACTICE</text><text class="section-head__title">修习题目</text></view><text class="section-head__note">下拉可刷新</text></view>
 
   <view wx:if="{{loading}}" class="loading"><t-loading theme="circular" size="48rpx" text="正在整理今日功课" /></view>

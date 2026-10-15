@@ -85,6 +85,7 @@ public final class ActivityDtos {
             String timeState,
             Instant startAt,
             Instant endAt,
+            long participantCount,
             int maxAttempts,
             int attemptsUsed,
             boolean canSubmit,

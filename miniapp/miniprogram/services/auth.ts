@@ -3,6 +3,7 @@ import { PRIVACY_VERSION, TERMS_VERSION } from '../config/legal'
 import type { ActiveTestIdentity, TokenResponse } from '../types/index'
 
 export const TOKEN_KEY = 'soft-energy-user-token'
+const USER_CACHE_KEY = 'soft-energy-current-user'
 const DEVICE_KEY = 'soft-energy-device-id'
 const CONSENT_KEY = 'soft-energy-legal-consent'
 export const TEST_SESSION_KEY = 'soft-energy-test-session'
@@ -48,6 +49,7 @@ export function ensureLogin(force = false): Promise<CurrentUser> {
             data: loginData,
           })
           wx.setStorageSync(TOKEN_KEY, response.accessToken)
+          wx.setStorageSync(USER_CACHE_KEY, response.currentUser)
           app.globalData.user = response.currentUser
           resolve(response.currentUser)
         } catch (error) { reject(error) } finally { loginTask = null }
@@ -74,14 +76,20 @@ export function currentConsent(): LegalConsent | null {
   return consent
 }
 
+export function hasActiveSession(): boolean {
+  return Boolean(getApp<IAppOption>().globalData.user && wx.getStorageSync<string>(TOKEN_KEY))
+}
+
 export function clearLoginSession(clearConsent = false): void {
   wx.removeStorageSync(TOKEN_KEY)
+  wx.removeStorageSync(USER_CACHE_KEY)
   wx.removeStorageSync(TEST_SESSION_KEY)
   if (clearConsent) wx.removeStorageSync(CONSENT_KEY)
   getApp<IAppOption>().globalData.user = null
 }
 
 export function updateCurrentUser(user: CurrentUser): void {
+  wx.setStorageSync(USER_CACHE_KEY, user)
   getApp<IAppOption>().globalData.user = user
 }
 
@@ -95,6 +103,7 @@ export function activateTestSession(response: TokenResponse, account: Pick<Activ
   const app = getApp<IAppOption>()
   const identity: ActiveTestIdentity = { ...account, currentUser: response.currentUser }
   wx.setStorageSync(TOKEN_KEY, response.accessToken)
+  wx.setStorageSync(USER_CACHE_KEY, response.currentUser)
   wx.setStorageSync(TEST_SESSION_KEY, identity)
   app.globalData.user = response.currentUser
 }
@@ -103,6 +112,7 @@ export async function exitTestSession(): Promise<CurrentUser> {
   const app = getApp<IAppOption>()
   wx.removeStorageSync(TEST_SESSION_KEY)
   wx.removeStorageSync(TOKEN_KEY)
+  wx.removeStorageSync(USER_CACHE_KEY)
   app.globalData.user = null
   return ensureLogin(true)
 }

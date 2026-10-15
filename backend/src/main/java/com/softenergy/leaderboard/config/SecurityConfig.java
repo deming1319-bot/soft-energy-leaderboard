@@ -74,6 +74,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/api/v1/admin/auth/login", "/api/v1/miniapp/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/miniapp/activities",
+                                "/api/v1/miniapp/activities/*").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/miniapp/**").hasRole("USER")

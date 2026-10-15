@@ -1,4 +1,5 @@
 import { acceptCurrentAgreements, currentConsent, ensureLogin } from '../../services/auth'
+import { safePagePath } from '../../utils/navigation'
 
 Page({
   data: {
@@ -8,10 +9,11 @@ Page({
     privacyName: '《问道修习用户隐私保护指引》',
     platformAuthorizationRequired: false,
     runtimeReady: true,
+    redirect: '/pages/home/index',
   },
-  onLoad() {
+  onLoad(query: Record<string, string | undefined>) {
     const app = getApp<IAppOption>()
-    this.setData({ runtimeReady: app.globalData.runtimeReady })
+    this.setData({ runtimeReady: app.globalData.runtimeReady, redirect: safePagePath(query.redirect) })
     if (typeof wx.getPrivacySetting === 'function') {
       wx.getPrivacySetting({
         success: (result) => {
@@ -20,15 +22,10 @@ Page({
             privacyName: result.privacyContractName || this.data.privacyName,
             platformAuthorizationRequired: result.needAuthorization,
           })
-          if (currentConsent() && !result.needAuthorization) void this.enter(false)
         },
-        fail: () => {
-          if (currentConsent()) void this.enter(false)
-        },
+        fail: () => undefined,
       })
-      return
     }
-    if (currentConsent()) void this.enter(false)
   },
   toggleAgreement() {
     if (this.data.entering) return
@@ -65,10 +62,13 @@ Page({
     try {
       if (saveAgreement) acceptCurrentAgreements()
       const user = await ensureLogin(true)
-      const target = user.profileComplete ? '/pages/home/index' : '/pages/profile-edit/index?first=1'
+      const target = user.profileComplete
+        ? this.data.redirect
+        : `/pages/profile-edit/index?first=1&redirect=${encodeURIComponent(this.data.redirect)}`
       wx.reLaunch({ url: target })
     } catch (error) {
       this.setData({ error: error instanceof Error ? error.message : '暂时无法进入，请稍后重试', entering: false })
     }
   },
+  goBrowse() { if (!this.data.entering) wx.reLaunch({ url: '/pages/home/index' }) },
 })
