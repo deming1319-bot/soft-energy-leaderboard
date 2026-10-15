@@ -21,10 +21,26 @@ describe('resolveRuntimeConfig', () => {
     })
   })
 
-  it('开发者工具模拟器使用本机 API', () => {
+  it('开发者工具默认使用正式 HTTPS API', () => {
     vi.stubGlobal('wx', {
       getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }),
       getDeviceInfo: () => ({ platform: 'devtools' }),
+      getStorageSync: () => undefined,
+    })
+
+    expect(resolveRuntimeConfig()).toEqual({
+      environment: 'develop',
+      apiBaseUrl: 'https://api.ruannengliang.top/api/v1',
+      configured: true,
+      localDevelopment: false,
+    })
+  })
+
+  it('开发者工具明确开启本地调试后才使用本机 API', () => {
+    vi.stubGlobal('wx', {
+      getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }),
+      getDeviceInfo: () => ({ platform: 'devtools' }),
+      getStorageSync: (key: string) => key === 'soft-energy-use-local-api',
     })
 
     expect(resolveRuntimeConfig()).toEqual({

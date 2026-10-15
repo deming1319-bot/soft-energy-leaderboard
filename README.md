@@ -16,7 +16,7 @@
 
 需要 Java 21、Maven、Node.js 20+、pnpm 和 MySQL 8.4。根目录 `compose.yaml` 可启动仅供开发使用的 MySQL。分别在 `backend/` 运行 `mvn spring-boot:run`，在 `admin-web/` 运行 `pnpm install`、`pnpm dev`；小程序在 `miniapp/` 运行 `pnpm install`、`pnpm build:npm` 后，用微信开发者工具导入 `miniapp` 目录。
 
-小程序开发接口默认指向 `http://127.0.0.1:8081/api/v1`。如果使用真机预览，请将 `miniapp/miniprogram/config/runtime.ts` 中的开发地址改为本机可访问的局域网地址；正式版必须改为已备案、已配置微信合法域名的 HTTPS API。
+小程序在微信开发者工具、预览版、体验版和正式版中默认统一访问 `https://api.ruannengliang.top/api/v1`，避免上传前误连未启动的本机服务。仅在明确调试本地后端时，开发人员可在开发者工具 Storage 中把 `soft-energy-use-local-api` 设置为布尔值 `true`，重新编译后临时访问 `http://127.0.0.1:8081/api/v1`；删除该键或设为 `false` 即恢复线上 HTTPS。
 
 ## 生产部署前必须配置
 

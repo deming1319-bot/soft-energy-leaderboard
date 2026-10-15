@@ -103,8 +103,8 @@ if (!productionApi) {
     issues.push('正式 API 地址格式不正确')
   }
 }
-if (!runtime.includes("platform === 'devtools'") || !runtime.includes('localDevelopment')) {
-  issues.push('本机 API 必须同时受开发者工具平台判定保护，不能仅依赖 envVersion=develop')
+if (!runtime.includes("platform === 'devtools'") || !runtime.includes('LOCAL_API_OPT_IN_KEY') || !runtime.includes('localDevelopment')) {
+  issues.push('本机 API 必须同时受开发者工具平台和显式本地调试开关保护，不能默认启用')
 }
 if (!appLogic.includes('runtime.localDevelopment') || !authLogic.includes('globalData.localDevelopment')) {
   issues.push('模拟用户和设备标识只能在开发者工具本机环境启用')
