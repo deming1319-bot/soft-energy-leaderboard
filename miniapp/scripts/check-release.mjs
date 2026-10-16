@@ -126,6 +126,7 @@ if (!welcomeLogic.includes('wx.getPrivacySetting')) issues.push('欢迎页没有
 if (welcomeLogic.includes('void this.enter(false)')) issues.push('欢迎页仍存在未经用户点击就自动登录的逻辑')
 if (homeLogic.includes('ensureLogin')) issues.push('首页不得把登录作为浏览公开题目的前置条件')
 if (!home.includes('公开内容可直接浏览')) issues.push('首页缺少游客可浏览、操作时再登录的明确提示')
+if (!home.includes('wx:if="{{!loggedIn}}"') || !home.includes('查看题目')) issues.push('首页缺少游客直接查看题目的明确入口')
 if (!activity.includes('登录后参与作答')) issues.push('题目详情缺少由游客主动发起的登录入口')
 if (!legal.includes('反馈与举报')) issues.push('隐私与用户协议未声明投诉举报处理')
 if (!home.includes('APP 备案号')) issues.push('小程序首页底部没有展示 APP 备案号')

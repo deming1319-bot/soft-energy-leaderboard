@@ -24,7 +24,8 @@
       <text class="activity-card__title">{{item.title}}</text><text class="activity-card__subtitle">{{item.subtitle || '于一问之间，照见所学与所行。'}}</text>
       <view class="activity-card__divider" />
       <view class="activity-card__foot"><view><text>{{item.timeText}}</text><text class="semantic-small" wx:if="{{item.remaining}}">{{item.remaining}}</text></view><view class="participation"><text>{{item.participantCount}}</text><text class="semantic-small">人已作答</text></view></view>
-      <view class="activity-card__action"><text wx:if="{{item.submitted}}">已完成 · 查看结果</text><text wx:elif="{{item.timeState === 'ACTIVE'}}">进入作答</text><text wx:elif="{{item.timeState === 'ENDED'}}" data-id="{{item.id}}" catchtap="openLeaderboard">查看榜单</text><text wx:else>查看详情</text><text class="semantic-span">›</text></view>
+      <view wx:if="{{!loggedIn}}" class="activity-card__action"><text>查看题目</text><text class="semantic-span">›</text></view>
+      <view wx:else class="activity-card__action"><text wx:if="{{item.submitted}}">已完成 · 查看结果</text><text wx:elif="{{item.timeState === 'ACTIVE'}}">进入作答</text><text wx:elif="{{item.timeState === 'ENDED'}}" data-id="{{item.id}}" catchtap="openLeaderboard">查看榜单</text><text wx:else>查看详情</text><text class="semantic-span">›</text></view>
     </view>
     <view wx:if="{{!activities.length}}" class="empty-state"><view class="empty-seal">静</view><text>今日暂无修习题目</text><text class="semantic-small">稍作歇息，静候下一问</text></view>
   </view>
